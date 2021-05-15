@@ -1,0 +1,1 @@
+AssetStudio\AssetStudioGUI\bin\Release\pkg-doctor.exe %*
