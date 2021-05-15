@@ -1,5 +1,5 @@
 # pkg-doctor
-包体医生，Unity、Unreal 游戏包体优化工具。
+包体医生，Unity 及 Unreal 游戏包体优化工具。
 
 # 分析 Unity 游戏
 
