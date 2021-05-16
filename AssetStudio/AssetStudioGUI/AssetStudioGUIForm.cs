@@ -141,7 +141,7 @@ namespace AssetStudioGUI
                         Console.WriteLine("BuildAssetData");
                         BuildAssetData();
 
-                        var path_pkg = path_0 + "-pkg";
+                        var path_pkg = path_0.TrimEnd(new[] { '/', '\\' }) + "-pkg";
                         Console.WriteLine("ExportAssets {0}", path_pkg);
                         if (!Directory.Exists(path_pkg))
                             Directory.CreateDirectory(path_pkg);
