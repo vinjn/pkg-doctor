@@ -1,1 +1,1 @@
-AssetStudio\AssetStudioGUI\bin\Release\pkg-doctor.exe %*
+%~dp0\AssetStudio\AssetStudioGUI\bin\Release\pkg-doctor.exe %*

@@ -480,7 +480,7 @@ namespace AssetStudioGUI
             if (exportType == ExportType.Csv)
                 csvFile.Write("File Name,Size,Allocated,Modified,Attributes,Files,Folders\n");
             else if (exportType == ExportType.Viz)
-                csvFile.Write("Name,Container,Type,Size,FileName\n");
+                csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName\n");
             int toExportCount = toExportAssets.Count;
             int exportedCount = 0;
             int i = 0;

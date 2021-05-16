@@ -8,7 +8,7 @@ from collections import defaultdict
 markdeep_head = """
 <meta charset="utf-8" emacsmode="-*- markdown -*-">
 <link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/apidoc.css?"">
-<script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script src="https://casual-effects.com/markdeep/markdeep.min.js?" charset="utf-8"></script>
 """
 def pretty_number(num):
     if num < 1e3:
@@ -26,8 +26,8 @@ def process_pkg_csv(filename):
 
     markdown = open(dir_name / 'pkg.html', 'w')
     markdown.write(markdeep_head)
-    markdown.write('Name|Count|Type|Size|WastedSize|FileName|Container\n')
-    markdown.write('----|-----|----|----|----------|--------|---------\n')
+    markdown.write('Name|Count|Type|Size|WastedSize|Dimension|Format|FileName|Container\n')
+    markdown.write('----|-----|----|----|----------|---------|------|--------|---------\n')
     # markdown.write('# %s\n' % (self.getUniqueName()))
     with open(filename, encoding='utf-8') as infile:
         if 'tsv' in filename:
@@ -65,13 +65,17 @@ def process_pkg_csv(filename):
             asset_filename = row['FileName']
             size = int(row['Size'])
             if 'png' in asset_filename:
-                asset_filename = '![](%s border="2" width="50%%")' % asset_filename
-            markdown.write('%s|%d|%s|%s|%s|%s|%s\n' % (
+                asset_filename = '![](%s border="2")' % asset_filename
+            else:
+                asset_filename = '' # save web page space
+            markdown.write('%s|%d|%s|%s|%s|%s|%s|%s|%s\n' % (
                 row['Name'],
                 len(items),
                 row['Type'],
                 pretty_number(size),
                 '**%s**' % pretty_number(v['wasted']),
+                row['Dimension'],
+                row['Format'],
                 asset_filename,
                 ',<br>'.join(containers),
             ))

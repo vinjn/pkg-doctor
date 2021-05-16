@@ -432,25 +432,40 @@ namespace AssetStudioGUI
                 return false;
             bool result = false;
             string filename;
+            string dimension = "";
+            string format = "";
             switch (item.Type)
             {
-                //csvFile.Write("Name,Container,Type,Size,FileName\n");
+                //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName\n");
                 case ClassIDType.Texture2D:
                     {
                         result = ExportTexture2D(item, exportPath, out filename);
+                        var texture2D = (Texture2D)item.Asset;
+                        if (texture2D.m_MipMap)
+                            dimension = string.Format("{0}x{1} mips", texture2D.m_Width, texture2D.m_Height, texture2D.m_MipCount);
+                        else
+                            dimension = string.Format("{0}x{1}", texture2D.m_Width, texture2D.m_Height);
+                        format = texture2D.m_TextureFormat.ToString();
                         filename = filename.Replace(exportPath, "Texture2D/");
                         break;
                     }
-
+                case ClassIDType.Texture2DArray:
+                    {
+                        result = ExportRawFile(item, exportPath, out filename);
+                        filename = filename.Replace(exportPath, "Texture2DArray/");
+                        break;
+                    }
                 case ClassIDType.Shader:
                     {
                         result = ExportRawFile(item, exportPath, out filename);
+                        var shader = (Shader)item.Asset;
                         filename = filename.Replace(exportPath, "Shader/");
                         break;
                     }
                 case ClassIDType.Font:
                     {
                         result = ExportRawFile(item, exportPath, out filename);
+                        var font = (Font)item.Asset;
                         filename = filename.Replace(exportPath, "Font/");
                         break;
                     }
@@ -458,6 +473,9 @@ namespace AssetStudioGUI
                     {
                         //PreviewAsset()
                         result = ExportRawFile(item, exportPath, out filename);
+                        var mesh = (Mesh)item.Asset;
+                        dimension = string.Format("vtx:{0} idx:{1} uv:{2} n:{3}", 
+                            mesh.m_VertexCount, mesh.m_Indices.Count, mesh.m_UV0?.Length, mesh.m_Normals?.Length);
                         filename = filename.Replace(exportPath, "Mesh/");
                         break;
                     }
@@ -465,8 +483,9 @@ namespace AssetStudioGUI
                 default:
                     return false;
             }
-            csvFile.Write(string.Format("{0},{1},{2},{3},{4}\n",
-                item.Text, item.Container, item.TypeString, item.FullSize, filename));
+            //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName\n");
+            csvFile.Write(string.Format("{0},{1},{2},{3},{4},{5},{6}\n",
+                item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename));
 
             return result;
         }
