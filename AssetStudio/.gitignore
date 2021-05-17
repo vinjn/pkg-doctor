@@ -339,3 +339,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 pkg-doctor-*
+
+!AssetStudioGUI/Libraries/x64/fmod.dll

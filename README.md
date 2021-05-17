@@ -19,6 +19,9 @@
 # 分析 Unreal 游戏
 
 ## 生成 pkg-doctor.exe
+- 进入 *Engine\Source\Programs* 目录
+- mklink /D UnrealPakViewer /path/to/pkg-doctor/UnrealPakViewer
+- 重新生成解决方案编译
 
 ## 分析 Unreal 游戏 apk
 
