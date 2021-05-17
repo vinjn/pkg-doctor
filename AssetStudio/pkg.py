@@ -10,6 +10,15 @@ markdeep_head = """
 <link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/newsmag.css?"">
 <script>markdeepOptions={tocStyle:'medium'};</script>
 <script src="https://casual-effects.com/markdeep/markdeep.min.js?" charset="utf-8"></script>
+<style>
+.md h1 {
+    color: #ff6600;  
+}
+.md div.title {
+    background-color: #ff6600;  
+}
+</style>
+
 """
 def pretty_number(num):
     if num < 1e3:
@@ -87,7 +96,7 @@ def process_pkg_csv(filename):
     markdown.write('- Uncompressed: **%s**\n' % pretty_number(total_uncompressed_bytes))
     markdown.write('\n')
 
-    markdown.write('# Duplicated Assets\n')
+    markdown.write('# Duplicated\n')
     markdown.write('Name|Type|Size|Wasted|Dimension|Format|Preview|Container\n')
     markdown.write('----|----|----|------|---------|------|-------|---------\n')
 
@@ -119,7 +128,7 @@ def process_pkg_csv(filename):
                 ' '.join(containers),
             ))
 
-    markdown.write('# Uncompressed Textures\n')
+    markdown.write('# Uncompressed\n')
     markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
     markdown.write('----|----|---------|------|-------|---------\n')
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
