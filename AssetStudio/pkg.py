@@ -50,13 +50,46 @@ def process_pkg_csv(filename):
             asset_item['wasted'] = row['Size'] * (len(asset_item['items']) - 1) 
             # print(row['Name'], file_size)
 
-    markdown.write('# Duplicated Assets\n')
-    markdown.write('Name|#|Size|Wasted|Dimension|Format|Preview|Container\n')
-    markdown.write('----|-|----|------|---------|------|-------|---------\n')
-    total_wasted = 0
+    total_bytes = 0
+    total_texture_bytes = 0
+    total_shader_bytes = 0
+    total_font_bytes = 0
+    total_mesh_bytes = 0
+    total_wasted_bytes = 0
+    total_uncompressed_bytes = 0
+    total_uncompressed_count = 0
     for k, v in assets.items():
-        total_wasted += v['wasted']        
-    markdown.write('Total|||%s||||\n' % ('**%s**' % pretty_number(total_wasted)))
+        total_wasted_bytes += v['wasted']
+        items = v['items']
+        row = items[0]
+        items_bytes = row['Size'] * len(items)
+        total_bytes += items_bytes
+        if row['Type'] == 'Texture2D':
+            total_texture_bytes += items_bytes
+        elif row['Type'] == 'Shader':
+            total_shader_bytes += items_bytes
+        elif row['Type'] == 'Font':
+            total_font_bytes += items_bytes
+        elif row['Type'] == 'Mesh':
+            total_mesh_bytes += items_bytes
+
+        if row['Type'] == 'Texture2D' and 'BC' not in row['Format'] and 'TC' not in row['Format']:
+            total_uncompressed_bytes += items_bytes
+            total_uncompressed_count += len(items)
+
+    markdown.write('# Summary\n')
+    markdown.write('- Assets: **%s**\n' % pretty_number(total_bytes))
+    markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_texture_bytes), total_texture_bytes * 100 / total_bytes))
+    markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_mesh_bytes), total_mesh_bytes * 100 / total_bytes))
+    markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
+    markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
+    markdown.write('- Duplicated: **%s**\n' % pretty_number(total_wasted_bytes))
+    markdown.write('- Uncompressed: **%s**\n' % pretty_number(total_uncompressed_bytes))
+    markdown.write('\n')
+
+    markdown.write('# Duplicated Assets\n')
+    markdown.write('Name|Type|Size|Wasted|Dimension|Format|Preview|Container\n')
+    markdown.write('----|----|----|------|---------|------|-------|---------\n')
 
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['wasted'], reverse=True)):
         v = assets[k]
@@ -68,15 +101,17 @@ def process_pkg_csv(filename):
             for item in items:
                 containers.append(item['Container'])
             asset_filename = row['FileName']
-            size = row['Size']
             if 'png' in asset_filename:
                 preview = '![](%s border="2")' % asset_filename
             else:
                 preview = '' # save web page space
+            type = row['Type']
+            if type == 'Texture2D':
+                type = 'Texture'
             markdown.write('%s|%s|%s|%s|%s|%s|%s|%s\n' % (
                 row['Name'],
-                "%d%s" % (len(items), row['Type'][0]),
-                pretty_number(size),
+                type,
+                '%s*%d' % (pretty_number(row['Size']), len(items)),
                 '**%s**' % pretty_number(v['wasted']),
                 row['Dimension'],
                 row['Format'],
@@ -85,8 +120,8 @@ def process_pkg_csv(filename):
             ))
 
     markdown.write('# Uncompressed Textures\n')
-    markdown.write('Name|#|Size|Dimension|Format|Preview|Container\n')
-    markdown.write('----|-|----|---------|------|-------|---------\n')
+    markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
+    markdown.write('----|----|---------|------|-------|---------\n')
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
         v = assets[k]    
         items = v['items']
@@ -97,10 +132,9 @@ def process_pkg_csv(filename):
         if 'BC' in format or 'TC' in format:
             continue
         preview = '![](%s border="2" width="50%%")' % row['FileName']
-        markdown.write('%s|%d|%s|%s|%s|%s|%s\n' % (
+        markdown.write('%s|%s|%s|%s|%s|%s\n' % (
             row['Name'],
-            len(items),
-            pretty_number(row['Size']),
+            '%s*%d' % (pretty_number(row['Size']), len(items)),
             row['Dimension'],
             row['Format'],
             preview,
