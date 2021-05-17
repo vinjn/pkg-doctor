@@ -427,8 +427,8 @@ namespace AssetStudioGUI
 
         public static bool ExportVizFile(AssetItem item, string exportPath, StreamWriter csvFile)
         {
-            if (item.FullSize < 100000)
-                // skip small 
+            if (item.FullSize < 10000)
+                // skip small files
                 return false;
             bool result = false;
             string filename;
