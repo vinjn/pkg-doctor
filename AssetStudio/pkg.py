@@ -56,7 +56,7 @@ def process_pkg_csv(filename):
     total_wasted = 0
     for k, v in assets.items():
         total_wasted += v['wasted']        
-    markdown.write('Total||||%s||||\n' % ('**%s**' % pretty_number(total_wasted)))
+    markdown.write('Total|||%s||||\n' % ('**%s**' % pretty_number(total_wasted)))
 
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['wasted'], reverse=True)):
         v = assets[k]
@@ -81,7 +81,7 @@ def process_pkg_csv(filename):
                 row['Dimension'],
                 row['Format'],
                 preview,
-                ',<br>'.join(containers),
+                ' '.join(containers),
             ))
 
     markdown.write('# Uncompressed Textures\n')
