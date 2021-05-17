@@ -51,8 +51,8 @@ def process_pkg_csv(filename):
             # print(row['Name'], file_size)
 
     markdown.write('# Duplicated Assets\n')
-    markdown.write('Name|Count|Type|Size|WastedSize|Dimension|Format|Preview|Container\n')
-    markdown.write('----|-----|----|----|----------|---------|------|-------|---------\n')
+    markdown.write('Name|#|Size|Wasted|Dimension|Format|Preview|Container\n')
+    markdown.write('----|-|----|------|---------|------|-------|---------\n')
     total_wasted = 0
     for k, v in assets.items():
         total_wasted += v['wasted']        
@@ -73,10 +73,9 @@ def process_pkg_csv(filename):
                 preview = '![](%s border="2")' % asset_filename
             else:
                 preview = '' # save web page space
-            markdown.write('%s|%d|%s|%s|%s|%s|%s|%s|%s\n' % (
+            markdown.write('%s|%s|%s|%s|%s|%s|%s|%s\n' % (
                 row['Name'],
-                len(items),
-                row['Type'],
+                "%d%s" % (len(items), row['Type'][0]),
                 pretty_number(size),
                 '**%s**' % pretty_number(v['wasted']),
                 row['Dimension'],
@@ -86,8 +85,8 @@ def process_pkg_csv(filename):
             ))
 
     markdown.write('# Uncompressed Textures\n')
-    markdown.write('Name|Count|Size|Dimension|Format|Preview|Container\n')
-    markdown.write('----|-----|----|---------|------|-------|---------\n')
+    markdown.write('Name|#|Size|Dimension|Format|Preview|Container\n')
+    markdown.write('----|-|----|---------|------|-------|---------\n')
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
         v = assets[k]    
         items = v['items']
