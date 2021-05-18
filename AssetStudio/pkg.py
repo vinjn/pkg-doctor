@@ -127,6 +127,29 @@ def process_pkg_csv(filename):
                 preview,
                 ' '.join(containers),
             ))
+    markdown.write('\n')
+
+    markdown.write('# Large\n')
+    markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
+    markdown.write('----|----|---------|------|-------|---------\n')
+    for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
+        v = assets[k]    
+        items = v['items']
+        row = items[0]
+        if row['Type'] != 'Texture2D':
+            continue
+        dimension = row['Dimension']
+        if '1024' in dimension or '2048' in dimension or '4096' in dimension:
+            preview = '![](%s border="2")' % row['FileName']
+            markdown.write('%s|%s|%s|%s|%s|%s\n' % (
+                row['Name'],
+                pretty_number(row['Size']),
+                row['Dimension'],
+                row['Format'],
+                preview,
+                row['Container'],
+            ))            
+    markdown.write('\n')
 
     markdown.write('# Uncompressed\n')
     markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
