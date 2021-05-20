@@ -447,6 +447,9 @@ namespace AssetStudioGUI
                             dimension = string.Format("{0}x{1}", texture2D.m_Width, texture2D.m_Height);
                         format = texture2D.m_TextureFormat.ToString();
                         filename = filename.Replace(exportPath, "Texture2D/");
+                        filename = filename.Replace("(", "_");
+                        filename = filename.Replace(")", "_");
+                        filename = filename.Replace(" ", "_");
                         break;
                     }
                 case ClassIDType.Texture2DArray:

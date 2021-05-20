@@ -27,6 +27,8 @@ def pretty_number(num):
         return "%.1fK" % (num/1e3)
     if num < 1e9:
         return "%.1fM" % (num/1e6)
+    if num < 1e12:
+        return "%.1fG" % (num/1e9)
     return str(num)
 
 def process_pkg_csv(filename):
@@ -34,7 +36,7 @@ def process_pkg_csv(filename):
     dir_name = Path(filename).parent
     # print(filename, dir_name)
 
-    markdown = open(dir_name / 'pkg.html', 'w')
+    markdown = open(dir_name / 'pkg.html', 'w', encoding='utf-8')
     markdown.write(markdeep_head)
     # markdown.write('# %s\n' % (self.getUniqueName()))
     with open(filename, encoding='utf-8') as infile:
@@ -47,6 +49,8 @@ def process_pkg_csv(filename):
         for row in reader:
             # print(row)
             file_path = dir_name / row['FileName']
+            if not file_path.exists():
+                continue
             file_size = file_path.stat().st_size
             if file_size not in assets:
                 assets[file_size] = {
