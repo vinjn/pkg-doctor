@@ -370,8 +370,6 @@ namespace AssetStudioGUI
 
                 if (exportType == ExportType.Csv)
                     csvFile.Write("File Name,Size,Allocated,Modified,Attributes,Files,Folders\n");
-                else if(exportType == ExportType.Viz)
-                    csvFile.Write("Name,Container,Type,Size,FileName\n");
                 int toExportCount = toExportAssets.Count;
                 int exportedCount = 0;
                 int i = 0;
@@ -433,12 +431,6 @@ namespace AssetStudioGUI
                                 }
                                 exportedCount++;
                                 break;
-                            case ExportType.Viz:
-                                if (ExportVizFile(asset, exportPath, csvFile))
-                                {
-                                    exportedCount++;
-                                }
-                                break;
                         }
                     }
                     catch (Exception ex)
@@ -480,7 +472,7 @@ namespace AssetStudioGUI
             if (exportType == ExportType.Csv)
                 csvFile.Write("File Name,Size,Allocated,Modified,Attributes,Files,Folders\n");
             else if (exportType == ExportType.Viz)
-                csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName\n");
+                csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash\n");
             int toExportCount = toExportAssets.Count;
             int exportedCount = 0;
             int i = 0;

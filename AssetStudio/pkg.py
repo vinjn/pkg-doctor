@@ -48,26 +48,31 @@ def process_pkg_csv(filename):
             reader = csv.DictReader(infile)
         for row in reader:
             # print(row)
-            file_path = dir_name / row['FileName']
-            if not file_path.exists():
-                continue
-            file_size = file_path.stat().st_size
-            if file_size not in assets:
-                assets[file_size] = {
+            hash = row['Hash']
+            filename = row['FileName']
+            if filename:
+                file_path = dir_name / filename
+                if file_path.exists():
+                    file_size = file_path.stat().st_size
+                    hash = row['Type'] + str(file_size)
+            if hash not in assets:
+                assets[hash] = {
                     'wasted': 0,
                     'items': []
                 }
-            asset_item = assets[file_size]
+            asset_item = assets[hash]
             row['Size'] = int(row['Size'])
             asset_item['items'].append(row)
             asset_item['wasted'] = row['Size'] * (len(asset_item['items']) - 1) 
-            # print(row['Name'], file_size)
+            # print(row['Name'], md5)
 
     total_bytes = 0
     total_texture_bytes = 0
     total_shader_bytes = 0
     total_font_bytes = 0
     total_mesh_bytes = 0
+    total_audio_bytes = 0
+    total_animation_bytes = 0
     total_wasted_bytes = 0
     total_uncompressed_bytes = 0
     total_uncompressed_count = 0
@@ -85,22 +90,28 @@ def process_pkg_csv(filename):
             total_font_bytes += items_bytes
         elif row['Type'] == 'Mesh':
             total_mesh_bytes += items_bytes
+        elif row['Type'] == 'AudioClip':
+            total_audio_bytes += items_bytes
+        elif row['Type'] == 'AnimationClip':
+            total_animation_bytes += items_bytes
 
         if row['Type'] == 'Texture2D' and 'BC' not in row['Format'] and 'TC' not in row['Format']:
             total_uncompressed_bytes += items_bytes
             total_uncompressed_count += len(items)
 
-    markdown.write('# Summary\n')
-    markdown.write('- Assets: **%s**\n' % pretty_number(total_bytes))
+    markdown.write('# 包体概览\n')
+    markdown.write('- 资产尺寸: **%s**\n' % pretty_number(total_bytes))
     markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_texture_bytes), total_texture_bytes * 100 / total_bytes))
     markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_mesh_bytes), total_mesh_bytes * 100 / total_bytes))
+    markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_audio_bytes), total_audio_bytes * 100 / total_bytes))
+    markdown.write('  - AnimationClip: **%s** (%.2f%%)\n' % (pretty_number(total_animation_bytes), total_animation_bytes * 100 / total_bytes))
     markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
     markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
-    markdown.write('- Duplicated: **%s**\n' % pretty_number(total_wasted_bytes))
-    markdown.write('- Uncompressed: **%s**\n' % pretty_number(total_uncompressed_bytes))
+    markdown.write('- 重复入包尺寸: **%s**\n' % pretty_number(total_wasted_bytes))
+    markdown.write('- 未压缩贴图尺寸: **%s**\n' % pretty_number(total_uncompressed_bytes))
     markdown.write('\n')
 
-    markdown.write('# Duplicated\n')
+    markdown.write('# 重复入包\n')
     markdown.write('Name|Type|Size|Wasted|Dimension|Format|Preview|Container\n')
     markdown.write('----|----|----|------|---------|------|-------|---------\n')
 
@@ -129,33 +140,11 @@ def process_pkg_csv(filename):
                 row['Dimension'],
                 row['Format'],
                 preview,
-                ' '.join(containers),
+                ', '.join(containers),
             ))
     markdown.write('\n')
 
-    markdown.write('# Large\n')
-    markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
-    markdown.write('----|----|---------|------|-------|---------\n')
-    for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
-        v = assets[k]    
-        items = v['items']
-        row = items[0]
-        if row['Type'] != 'Texture2D':
-            continue
-        dimension = row['Dimension']
-        if '1024' in dimension or '2048' in dimension or '4096' in dimension:
-            preview = '![](%s border="2")' % row['FileName']
-            markdown.write('%s|%s|%s|%s|%s|%s\n' % (
-                row['Name'],
-                pretty_number(row['Size']),
-                row['Dimension'],
-                row['Format'],
-                preview,
-                row['Container'],
-            ))            
-    markdown.write('\n')
-
-    markdown.write('# Uncompressed\n')
+    markdown.write('# 未压缩贴图\n')
     markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
     markdown.write('----|----|---------|------|-------|---------\n')
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
@@ -167,7 +156,11 @@ def process_pkg_csv(filename):
         format = row['Format']
         if 'BC' in format or 'TC' in format:
             continue
-        preview = '![](%s border="2" width="50%%")' % row['FileName']
+        asset_filename = row['FileName']
+        if 'png' in asset_filename:
+            preview = '![](%s border="2")' % asset_filename
+        else:
+            preview = ''   
         markdown.write('%s|%s|%s|%s|%s|%s\n' % (
             row['Name'],
             '%s*%d' % (pretty_number(row['Size']), len(items)),
@@ -178,10 +171,37 @@ def process_pkg_csv(filename):
         ))
     markdown.write('\n')
 
+    markdown.write('# 大尺寸贴图\n')
+    markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
+    markdown.write('----|----|---------|------|-------|---------\n')
+    for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
+        v = assets[k]    
+        items = v['items']
+        row = items[0]
+        if row['Type'] != 'Texture2D':
+            continue
+        dimension = row['Dimension']
+        if '1024' in dimension or '2048' in dimension or '4096' in dimension:
+            asset_filename = row['FileName']
+            if 'png' in asset_filename:
+                preview = '![](%s border="2")' % asset_filename
+            else:
+                preview = ''   
+            preview = '![](%s border="2")' % row['FileName']
+            markdown.write('%s|%s|%s|%s|%s|%s\n' % (
+                row['Name'],
+                pretty_number(row['Size']),
+                row['Dimension'],
+                row['Format'],
+                preview,
+                row['Container'],
+            ))            
+    markdown.write('\n')
+
     print('\nreport -> %s\n' % (dir_name / 'pkg.html'))
 
 if __name__ == '__main__':
-    pkg_csv = 'd:/t3-202105120931fc9190.1620783875-pkg/pkg.csv'
+    pkg_csv = 'c:/svn_pool/pkg-doctor/_fp/combinbed-pkg/pkg.csv'
     if len(sys.argv) > 1:
         pkg_csv = sys.argv[1]    
     process_pkg_csv(pkg_csv)

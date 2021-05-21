@@ -6,6 +6,7 @@ using System.Text;
 using AssetStudio;
 using Newtonsoft.Json;
 using TGASharpLib;
+using System.Security.Cryptography;
 
 namespace AssetStudioGUI
 {
@@ -135,8 +136,9 @@ namespace AssetStudioGUI
             return true;
         }
 
-        public static bool ExportFont(AssetItem item, string exportPath)
+        public static bool ExportFont(AssetItem item, string exportPath, out string exportFullPath)
         {
+            exportFullPath = "";
             var m_Font = (Font)item.Asset;
             if (m_Font.m_FontData != null)
             {
@@ -145,7 +147,7 @@ namespace AssetStudioGUI
                 {
                     extension = ".otf";
                 }
-                if (!TryExportFile(exportPath, item, extension, out var exportFullPath))
+                if (!TryExportFile(exportPath, item, extension, out exportFullPath))
                     return false;
                 File.WriteAllBytes(exportFullPath, m_Font.m_FontData);
                 return true;
@@ -407,7 +409,7 @@ namespace AssetStudioGUI
                 case ClassIDType.MonoBehaviour:
                     return ExportMonoBehaviour(item, exportPath);
                 case ClassIDType.Font:
-                    return ExportFont(item, exportPath);
+                    return ExportFont(item, exportPath, out exportFullPath);
                 case ClassIDType.Mesh:
                     return ExportMesh(item, exportPath);
                 case ClassIDType.VideoClip:
@@ -427,68 +429,106 @@ namespace AssetStudioGUI
 
         public static bool ExportVizFile(AssetItem item, string exportPath, StreamWriter csvFile)
         {
-            if (item.FullSize < 10000)
-                // skip small files
-                return false;
-            bool result = false;
-            string filename;
+            bool result = true;
+            string filename = "";
+            string hash = "";
             string dimension = "";
             string format = "";
+            byte[] rawData;
             switch (item.Type)
             {
-                //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName\n");
+                //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash\n");
                 case ClassIDType.Texture2D:
                     {
-                        result = ExportTexture2D(item, exportPath, out filename);
                         var texture2D = (Texture2D)item.Asset;
+                        rawData = texture2D.image_data.GetData();
                         if (texture2D.m_MipMap)
                             dimension = string.Format("{0}x{1} mips", texture2D.m_Width, texture2D.m_Height, texture2D.m_MipCount);
                         else
                             dimension = string.Format("{0}x{1}", texture2D.m_Width, texture2D.m_Height);
+                        if (texture2D.m_Width >= 512 && texture2D.m_Height >= 512)
+                        {
+                            result = ExportTexture2D(item, exportPath, out filename);
+                            filename = filename.Replace(exportPath, "Texture2D/");
+                            filename = filename.Replace("(", "_");
+                            filename = filename.Replace(")", "_");
+                            filename = filename.Replace(" ", "_");
+                        }
                         format = texture2D.m_TextureFormat.ToString();
-                        filename = filename.Replace(exportPath, "Texture2D/");
-                        filename = filename.Replace("(", "_");
-                        filename = filename.Replace(")", "_");
-                        filename = filename.Replace(" ", "_");
                         break;
                     }
                 case ClassIDType.Texture2DArray:
                     {
-                        result = ExportRawFile(item, exportPath, out filename);
-                        filename = filename.Replace(exportPath, "Texture2DArray/");
+                        rawData = item.Asset.GetRawData();
+                        //result = ExportRawFile(item, exportPath, out filename);
+                        //filename = filename.Replace(exportPath, "Texture2DArray/");
                         break;
                     }
                 case ClassIDType.Shader:
                     {
-                        result = ExportRawFile(item, exportPath, out filename);
+                        rawData = item.Asset.GetRawData();
+                        //result = ExportRawFile(item, exportPath, out filename);
                         var shader = (Shader)item.Asset;
-                        filename = filename.Replace(exportPath, "Shader/");
+                        //filename = filename.Replace(exportPath, "Shader/");
                         break;
                     }
                 case ClassIDType.Font:
                     {
-                        result = ExportRawFile(item, exportPath, out filename);
-                        var font = (Font)item.Asset;
+                        rawData = item.Asset.GetRawData();
+                        result = ExportFont(item, exportPath, out filename);
                         filename = filename.Replace(exportPath, "Font/");
+                        //result = ExportRawFile(item, exportPath, out filename);
+                        var font = (Font)item.Asset;
+                        //filename = filename.Replace(exportPath, "Font/");
                         break;
                     }
                 case ClassIDType.Mesh:
                     {
+                        rawData = item.Asset.GetRawData();
                         //PreviewAsset()
-                        result = ExportRawFile(item, exportPath, out filename);
+                        //result = ExportRawFile(item, exportPath, out filename);
                         var mesh = (Mesh)item.Asset;
                         dimension = string.Format("vtx:{0} idx:{1} uv:{2} n:{3}", 
                             mesh.m_VertexCount, mesh.m_Indices.Count, mesh.m_UV0?.Length, mesh.m_Normals?.Length);
-                        filename = filename.Replace(exportPath, "Mesh/");
+                        //filename = filename.Replace(exportPath, "Mesh/");
+                        break;
+                    }
+                case ClassIDType.AudioClip:
+                    {
+                        rawData = item.Asset.GetRawData();
+                        //result = ExportRawFile(item, exportPath, out filename);
+                        var audioClip = (AudioClip)item.Asset;
+                        //filename = filename.Replace(exportPath, "AudioClip/");
+                        break;
+                    }
+                case ClassIDType.AnimationClip:
+                    {
+                        rawData = item.Asset.GetRawData();
+                        //result = ExportRawFile(item, exportPath, out filename);
+                        var animationClip = (AnimationClip)item.Asset;
+                        //filename = filename.Replace(exportPath, "AnimationClip/");
                         break;
                     }
 
                 default:
                     return false;
             }
-            //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName\n");
-            csvFile.Write(string.Format("{0},{1},{2},{3},{4},{5},{6}\n",
-                item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename));
+
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+
+                byte[] retVal = md5.ComputeHash(rawData);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < retVal.Length; i++)
+                {
+                    sb.Append(retVal[i].ToString("x2"));
+                }
+                hash = sb.ToString();
+            }
+
+            //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash\n");
+            csvFile.Write(string.Format("{0},{1},{2},{3},{4},{5},{6},{7}\n",
+                item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename, hash));
 
             return result;
         }
