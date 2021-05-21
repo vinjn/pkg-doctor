@@ -155,12 +155,13 @@ namespace AssetStudioGUI
             return false;
         }
 
-        public static bool ExportMesh(AssetItem item, string exportPath)
+        public static bool ExportMesh(AssetItem item, string exportPath, out string exportFullPath)
         {
+            exportFullPath = "";
             var m_Mesh = (Mesh)item.Asset;
             if (m_Mesh.m_VertexCount <= 0)
                 return false;
-            if (!TryExportFile(exportPath, item, ".obj", out var exportFullPath))
+            if (!TryExportFile(exportPath, item, ".obj", out exportFullPath))
                 return false;
             var sb = new StringBuilder();
             sb.AppendLine("g " + m_Mesh.m_Name);
@@ -411,7 +412,7 @@ namespace AssetStudioGUI
                 case ClassIDType.Font:
                     return ExportFont(item, exportPath, out exportFullPath);
                 case ClassIDType.Mesh:
-                    return ExportMesh(item, exportPath);
+                    return ExportMesh(item, exportPath, out exportFullPath);
                 case ClassIDType.VideoClip:
                     return ExportVideoClip(item, exportPath);
                 case ClassIDType.MovieTexture:
@@ -474,17 +475,20 @@ namespace AssetStudioGUI
                     }
                 case ClassIDType.Font:
                     {
-                        rawData = item.Asset.GetRawData();
-                        result = ExportFont(item, exportPath, out filename);
+                        //rawData = item.Asset.GetRawData();
+                        //result = ExportFont(item, exportPath, out filename);
                         filename = filename.Replace(exportPath, "Font/");
                         //result = ExportRawFile(item, exportPath, out filename);
                         var font = (Font)item.Asset;
+                        rawData = font.m_FontData;
                         //filename = filename.Replace(exportPath, "Font/");
                         break;
                     }
                 case ClassIDType.Mesh:
                     {
                         rawData = item.Asset.GetRawData();
+                        result = ExportMesh(item, exportPath, out filename);
+                        filename = filename.Replace(exportPath, "Mesh/");
                         //PreviewAsset()
                         //result = ExportRawFile(item, exportPath, out filename);
                         var mesh = (Mesh)item.Asset;
