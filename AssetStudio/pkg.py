@@ -158,9 +158,14 @@ def process_pkg_csv(filename):
         if row['Type'] != 'Texture2D':
             continue
         format = row['Format']
-        if 'BC' in format or 'TC' in format:
+        if 'BC' in format or 'TC' in format or 'Alpha8' in format:
             continue
+        asset_name = row['Name']
         asset_filename = row['FileName']
+        if 'xdsdk' in asset_name or 'taptap' in asset_name or 'UnityWatermark' in asset_name:
+            # from SDK
+            continue
+        
         if 'png' in asset_filename:
             preview = '![](%s border="2")' % asset_filename
         else:
@@ -186,7 +191,10 @@ def process_pkg_csv(filename):
             continue
         dimension = row['Dimension']
         if '1024' in dimension or '2048' in dimension or '4096' in dimension:
+            asset_name = row['Name']
             asset_filename = row['FileName']
+            if '_1024' in asset_name or '_2048' in asset_name or 'sactx' in asset_name or 'lightmap' in asset_name.lower():
+                continue
             if 'png' in asset_filename:
                 preview = '![](%s border="2")' % asset_filename
             else:
