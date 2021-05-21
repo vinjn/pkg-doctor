@@ -311,6 +311,9 @@ namespace AssetStudioGUI
         private static bool TryExportFile(string dir, AssetItem item, string extension, out string fullPath)
         {
             var fileName = FixFileName(item.Text);
+            fileName = fileName.Replace("(", "_");
+            fileName = fileName.Replace(")", "_");
+            fileName = fileName.Replace(" ", "_");
             fullPath = Path.Combine(dir, fileName + extension);
             if (!File.Exists(fullPath))
             {
@@ -450,9 +453,6 @@ namespace AssetStudioGUI
                         {
                             result = ExportTexture2D(item, exportPath, out filename);
                             filename = filename.Replace(exportPath, "Texture2D/");
-                            filename = filename.Replace("(", "_");
-                            filename = filename.Replace(")", "_");
-                            filename = filename.Replace(" ", "_");
                         }
                         else
                         {
@@ -504,6 +504,11 @@ namespace AssetStudioGUI
                         dimension = string.Format("vtx:{0} idx:{1} uv:{2} n:{3}", 
                             mesh.m_VertexCount, mesh.m_Indices.Count, mesh.m_UV0?.Length, mesh.m_Normals?.Length);
                         //filename = filename.Replace(exportPath, "Mesh/");
+                        break;
+                    }
+                case ClassIDType.TextAsset:
+                    {
+                        rawData = item.Asset.GetRawData();
                         break;
                     }
                 case ClassIDType.AudioClip:

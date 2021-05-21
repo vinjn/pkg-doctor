@@ -72,6 +72,7 @@ def process_pkg_csv(filename):
     total_font_bytes = 0
     total_mesh_bytes = 0
     total_audio_bytes = 0
+    total_text_bytes = 0
     total_animation_bytes = 0
     total_wasted_bytes = 0
     total_uncompressed_bytes = 0
@@ -94,6 +95,8 @@ def process_pkg_csv(filename):
             total_audio_bytes += items_bytes
         elif row['Type'] == 'AnimationClip':
             total_animation_bytes += items_bytes
+        elif row['Type'] == 'TextAsset':
+            total_text_bytes += items_bytes
 
         if row['Type'] == 'Texture2D' and 'BC' not in row['Format'] and 'TC' not in row['Format']:
             total_uncompressed_bytes += items_bytes
@@ -104,6 +107,7 @@ def process_pkg_csv(filename):
     markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_texture_bytes), total_texture_bytes * 100 / total_bytes))
     markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_mesh_bytes), total_mesh_bytes * 100 / total_bytes))
     markdown.write('  - AnimationClip: **%s** (%.2f%%)\n' % (pretty_number(total_animation_bytes), total_animation_bytes * 100 / total_bytes))
+    markdown.write('  - TextAsset: **%s** (%.2f%%)\n' % (pretty_number(total_text_bytes), total_text_bytes * 100 / total_bytes))
     markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
     markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
     markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_audio_bytes), total_audio_bytes * 100 / total_bytes))
@@ -201,7 +205,7 @@ def process_pkg_csv(filename):
     print('\nreport -> %s\n' % (dir_name / 'pkg.html'))
 
 if __name__ == '__main__':
-    pkg_csv = 'c:/svn_pool/pkg-doctor/_fp/combinbed-pkg/pkg.csv'
+    pkg_csv = 'c:/svn_pool/pkg-doctor/_fp0521/base-pkg/pkg.csv'
     if len(sys.argv) > 1:
         pkg_csv = sys.argv[1]    
     process_pkg_csv(pkg_csv)
