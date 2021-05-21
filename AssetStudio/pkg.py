@@ -199,7 +199,6 @@ def process_pkg_csv(filename):
                 preview = '![](%s border="2")' % asset_filename
             else:
                 preview = ''   
-            preview = '![](%s border="2")' % row['FileName']
             markdown.write('%s|%s|%s|%s|%s|%s\n' % (
                 row['Name'],
                 pretty_number(row['Size']),
