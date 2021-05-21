@@ -435,14 +435,13 @@ namespace AssetStudioGUI
             string hash = "";
             string dimension = "";
             string format = "";
-            byte[] rawData;
+            byte[] rawData = null;
             switch (item.Type)
             {
                 //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash\n");
                 case ClassIDType.Texture2D:
                     {
                         var texture2D = (Texture2D)item.Asset;
-                        rawData = texture2D.image_data.GetData();
                         if (texture2D.m_MipMap)
                             dimension = string.Format("{0}x{1} mips", texture2D.m_Width, texture2D.m_Height, texture2D.m_MipCount);
                         else
@@ -454,6 +453,10 @@ namespace AssetStudioGUI
                             filename = filename.Replace("(", "_");
                             filename = filename.Replace(")", "_");
                             filename = filename.Replace(" ", "_");
+                        }
+                        else
+                        {
+                            rawData = texture2D.image_data.GetData();
                         }
                         format = texture2D.m_TextureFormat.ToString();
                         break;
@@ -477,7 +480,7 @@ namespace AssetStudioGUI
                     {
                         //rawData = item.Asset.GetRawData();
                         //result = ExportFont(item, exportPath, out filename);
-                        filename = filename.Replace(exportPath, "Font/");
+                        //filename = filename.Replace(exportPath, "Font/");
                         //result = ExportRawFile(item, exportPath, out filename);
                         var font = (Font)item.Asset;
                         rawData = font.m_FontData;
@@ -486,12 +489,18 @@ namespace AssetStudioGUI
                     }
                 case ClassIDType.Mesh:
                     {
-                        rawData = item.Asset.GetRawData();
-                        result = ExportMesh(item, exportPath, out filename);
-                        filename = filename.Replace(exportPath, "Mesh/");
+                        var mesh = (Mesh)item.Asset;
+                        if (mesh.m_VertexCount > 1000)
+                        {
+                            result = ExportMesh(item, exportPath, out filename);
+                            filename = filename.Replace(exportPath, "Mesh/");
+                        }
+                        else
+                        {
+                            rawData = item.Asset.GetRawData();
+                        }
                         //PreviewAsset()
                         //result = ExportRawFile(item, exportPath, out filename);
-                        var mesh = (Mesh)item.Asset;
                         dimension = string.Format("vtx:{0} idx:{1} uv:{2} n:{3}", 
                             mesh.m_VertexCount, mesh.m_Indices.Count, mesh.m_UV0?.Length, mesh.m_Normals?.Length);
                         //filename = filename.Replace(exportPath, "Mesh/");
@@ -518,18 +527,19 @@ namespace AssetStudioGUI
                     return false;
             }
 
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            if (rawData != null)
             {
-
-                byte[] retVal = md5.ComputeHash(rawData);
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < retVal.Length; i++)
+                using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
                 {
-                    sb.Append(retVal[i].ToString("x2"));
+                    byte[] retVal = md5.ComputeHash(rawData);
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < retVal.Length; i++)
+                    {
+                        sb.Append(retVal[i].ToString("x2"));
+                    }
+                    hash = sb.ToString();
                 }
-                hash = sb.ToString();
             }
-
             //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash\n");
             csvFile.Write(string.Format("{0},{1},{2},{3},{4},{5},{6},{7}\n",
                 item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename, hash));
