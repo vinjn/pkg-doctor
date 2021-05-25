@@ -150,6 +150,8 @@ namespace AssetStudioGUI
                         toExportAssets.Sort(CompareAssetByFileSize);
                         Studio.ExportAssets2(path_pkg, toExportAssets, ExportType.Viz);
 
+                        glControl1.Visible = true;
+
                         Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.csv");
                         run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg,  "pkg.csv"));
 
@@ -1993,6 +1995,20 @@ namespace AssetStudioGUI
         {
             InitOpenTK();
             glControlLoaded = true;
+
+            /*
+            foreach (var asset in exportableAssets)
+            {
+                if (asset.Type == ClassIDType.Mesh)
+                {
+                    PreviewAsset(asset);
+                    glControl1.Invalidate();
+
+                    Bitmap bitmap = GrabScreenshot();
+                    bitmap.Save("test.png", ImageFormat.Png);
+                }
+            }
+            */
         }
 
         Bitmap GrabScreenshot()
