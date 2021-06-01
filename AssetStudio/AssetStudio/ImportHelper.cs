@@ -103,6 +103,18 @@ namespace AssetStudio
                         }
                         else
                         {
+                            reader.Position = 16;
+                            signature = reader.ReadStringToNull(20);
+                            switch (signature)
+                            {
+                                case "UnityWeb":
+                                case "UnityRaw":
+                                case "UnityArchive":
+                                case "UnityFS":
+                                    return FileType.BundleFile;
+                                case "UnityWebData1.0":
+                                    return FileType.WebFile;
+                            }
                             return FileType.ResourceFile;
                         }
                     }

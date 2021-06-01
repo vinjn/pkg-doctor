@@ -45,6 +45,11 @@ namespace AssetStudio
         {
             m_Header = new Header();
             m_Header.signature = reader.ReadStringToNull();
+            if (m_Header.signature == "")
+            {
+                reader.Position = 16;
+                m_Header.signature = reader.ReadStringToNull();
+            }
             m_Header.version = reader.ReadUInt32();
             m_Header.unityVersion = reader.ReadStringToNull();
             m_Header.unityRevision = reader.ReadStringToNull();
