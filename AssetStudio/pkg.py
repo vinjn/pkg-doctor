@@ -116,8 +116,8 @@ def process_pkg_csv(filename):
     markdown.write('\n')
 
     markdown.write('# 重复入包\n')
-    markdown.write('Name|Type|Size|Wasted|Dimension|Format|Preview|Container\n')
-    markdown.write('----|----|----|------|---------|------|-------|---------\n')
+    markdown.write('Name|Type|Size|Wasted|Dimension|Format|Preview|Container|OriginalFile\n')
+    markdown.write('----|----|----|------|---------|------|-------|---------|------------\n')
 
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['wasted'], reverse=True)):
         v = assets[k]
@@ -126,8 +126,13 @@ def process_pkg_csv(filename):
             # duplicated assets
             row = items[0]
             containers = []
+            originalFiles = []
             for item in items:
-                containers.append(item['Container'])
+                name = item['Container']
+                if not name:
+                    name = '""'
+                containers.append(name)
+                originalFiles.append(item['OriginalFile'])
             asset_filename = row['FileName']
             if 'png' in asset_filename:
                 preview = '![](%s border="2")' % asset_filename
@@ -136,7 +141,7 @@ def process_pkg_csv(filename):
             type = row['Type']
             if type == 'Texture2D':
                 type = 'Texture'
-            markdown.write('%s|%s|%s|%s|%s|%s|%s|%s\n' % (
+            markdown.write('%s|%s|%s|%s|%s|%s|%s|%s|%s\n' % (
                 row['Name'],
                 type,
                 '%s*%d' % (pretty_number(row['Size']), len(items)),
@@ -144,7 +149,8 @@ def process_pkg_csv(filename):
                 row['Dimension'],
                 row['Format'],
                 preview,
-                ', '.join(containers),
+                '<br>'.join(containers),
+                '<br>'.join(originalFiles),
             ))
     markdown.write('\n')
 

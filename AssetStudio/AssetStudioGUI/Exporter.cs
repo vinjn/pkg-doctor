@@ -431,7 +431,7 @@ namespace AssetStudioGUI
             }
         }
 
-        public static bool ExportVizFile(AssetItem item, string exportPath, StreamWriter csvFile)
+        public static bool ExportVizFile(AssetItem item, string savePath, StreamWriter csvFile)
         {
             bool result = true;
             string filename = "";
@@ -439,9 +439,11 @@ namespace AssetStudioGUI
             string dimension = "";
             string format = "";
             byte[] rawData = null;
+            var sourcePath = savePath.Replace("-pkg", "\\");
+            var exportPath = Path.Combine(savePath, item.TypeString);
+
             switch (item.Type)
             {
-                //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash\n");
                 case ClassIDType.Texture2D:
                     {
                         var texture2D = (Texture2D)item.Asset;
@@ -545,9 +547,12 @@ namespace AssetStudioGUI
                     hash = sb.ToString();
                 }
             }
-            //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash\n");
-            csvFile.Write(string.Format("{0},{1},{2},{3},{4},{5},{6},{7}\n",
-                item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename, hash));
+            //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash,OriginalFile\n");
+            var originalFile = item.SourceFile.originalPath ?? item.SourceFile.fullName;
+            originalFile = originalFile.Replace(sourcePath, "");
+            originalFile = originalFile.Replace("\\", "/");
+            csvFile.Write(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n",
+                item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename, hash, originalFile));
 
             return result;
         }

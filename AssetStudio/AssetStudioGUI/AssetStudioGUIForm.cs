@@ -156,7 +156,7 @@ namespace AssetStudioGUI
                             Directory.CreateDirectory(path_pkg);
                         List<AssetItem> toExportAssets = exportableAssets;
                         toExportAssets.Sort(CompareAssetByFileSize);
-                        Studio.ExportAssets2(path_pkg, toExportAssets, ExportType.Viz);
+                        Studio.ExportAssets2(path_pkg, toExportAssets);
 
                         glControl1.Visible = true;
 
