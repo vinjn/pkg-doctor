@@ -133,7 +133,7 @@ namespace AssetStudioGUI
                         System.IO.Compression.ZipFile.ExtractToDirectory(path_0, path_apk);
                         path_0 = path_apk;
                     }
-                    if (File.Exists(path_0))
+                    if (File.Exists(path_0) || Directory.Exists(path_0))
                     {
                         if (Directory.Exists(path_0))
                         {
