@@ -133,11 +133,19 @@ namespace AssetStudioGUI
                         System.IO.Compression.ZipFile.ExtractToDirectory(path_0, path_apk);
                         path_0 = path_apk;
                     }
-                    if (Directory.Exists(path_0))
+                    if (File.Exists(path_0))
                     {
-                        path_0 = Path.Combine(Path.GetDirectoryName(path_0), Path.GetFileName(path_0));
-                        Console.WriteLine("LoadFolder {0}", path_0);
-                        assetsManager.LoadFolder(path_0);
+                        if (Directory.Exists(path_0))
+                        {
+                            path_0 = Path.Combine(Path.GetDirectoryName(path_0), Path.GetFileName(path_0));
+                            Console.WriteLine("LoadFolder {0}", path_0);
+                            assetsManager.LoadFolder(path_0);
+                        }
+                        else
+                        {
+                            Console.WriteLine("LoadFile {0}", path_0);
+                            assetsManager.LoadFile(path_0);
+                        }
 
                         Console.WriteLine("BuildAssetData");
                         BuildAssetData();
@@ -153,7 +161,7 @@ namespace AssetStudioGUI
                         glControl1.Visible = true;
 
                         Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.csv");
-                        run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg,  "pkg.csv"));
+                        run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg, "pkg.csv"));
 
                         // quit this app
                         Load += (s, e) => Close();

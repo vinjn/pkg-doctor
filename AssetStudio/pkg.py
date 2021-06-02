@@ -66,7 +66,7 @@ def process_pkg_csv(filename):
             asset_item['wasted'] = row['Size'] * (len(asset_item['items']) - 1) 
             # print(row['Name'], md5)
 
-    total_bytes = 0
+    total_bytes = 1
     total_texture_bytes = 0
     total_shader_bytes = 0
     total_font_bytes = 0

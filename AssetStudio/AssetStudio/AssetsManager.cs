@@ -56,7 +56,7 @@ namespace AssetStudio
             ProcessAssets();
         }
 
-        private void LoadFile(string fullName)
+        public void LoadFile(string fullName)
         {
             switch (CheckFileType(fullName, out var reader))
             {
