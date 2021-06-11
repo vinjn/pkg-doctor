@@ -114,11 +114,11 @@ def process_pkg_csv(filename):
     markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
     markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
     markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_audio_bytes), total_audio_bytes * 100 / total_bytes))
-    markdown.write('- 可通过去除重复入包的资产，减少包体 **%s** \n' % pretty_number(total_wasted_bytes))
-    markdown.write('- 可优化未经压缩的贴图 **%s** \n' % pretty_number(total_uncompressed_bytes))
-    markdown.write('  - 若统一选用 `ASTC_RGB_4x4` 格式，则可减少包体 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/3)) # sizeof(RGB24) / bpp(astc_4x4) = 24 / 8 = 3
-    markdown.write('  - 若统一选用 `ASTC_RGB_6x6` 格式，则可减少包体 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/6.74)) # sizeof(RGB24) / bpp(astc_6x6) = 24 / 3.56 = 6.74
-    markdown.write('  - 若统一选用 `ASTC_RGB_8x8` 格式，则可减少包体 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/12)) # sizeof(RGB24) / bpp(astc_8x8) = 24 / 2 = 12
+    markdown.write('- 其中重复入包的资产，可减去 **%s**\n' % pretty_number(total_wasted_bytes))
+    markdown.write('- 其中未经压缩的贴图尺寸为 **%s** \n' % pretty_number(total_uncompressed_bytes))
+    markdown.write('  - 若统一选用 `ASTC_RGB_4x4` 格式，可减去 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/3)) # sizeof(RGB24) / bpp(astc_4x4) = 24 / 8 = 3
+    markdown.write('  - 若统一选用 `ASTC_RGB_6x6` 格式，可减去 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/6.74)) # sizeof(RGB24) / bpp(astc_6x6) = 24 / 3.56 = 6.74
+    markdown.write('  - 若统一选用 `ASTC_RGB_8x8` 格式，可减去 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/12)) # sizeof(RGB24) / bpp(astc_8x8) = 24 / 2 = 12
 
     markdown.write('\n')
 
@@ -129,7 +129,8 @@ def process_pkg_csv(filename):
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['wasted'], reverse=True)):
         v = assets[k]
         items = v['items']
-        if len(items) <= 1:
+        item_count = len(items)
+        if item_count <= 1:
             # skip non-duplicated assets
             continue
 
@@ -152,13 +153,16 @@ def process_pkg_csv(filename):
             type = 'Texture'
         elif type == 'AnimatioClip':
             type = 'AnimClip'
+        format = row['Format']
+        if 'Crunched' in format:
+            format = format.replace('Crunched', '')
         markdown.write('%s|%s|%s|%s|%s|%s|%s|%s|%s\n' % (
             row['Name'],
             type,
-            '%s*%d' % (pretty_number(row['Size']), len(items)),
+            '%s%s' % (pretty_number(row['Size']), '*%d'% item_count if item_count > 1 else ''),
             '**%s**' % pretty_number(v['wasted']),
             row['Dimension'],
-            row['Format'],
+            format,
             preview,
             '<br>'.join(containers),
             '<br>'.join(originalFiles),
@@ -193,7 +197,7 @@ def process_pkg_csv(filename):
             preview = ''   
         markdown.write('%s|%s|%s|%s|%s|%s\n' % (
             row['Name'],
-            '%s*%d' % (pretty_number(row['Size']), len(items)),
+            '%s%s' % (pretty_number(row['Size']), '*%d'% item_count if item_count > 1 else ''),
             row['Dimension'],
             row['Format'],
             preview,
