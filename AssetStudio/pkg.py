@@ -114,7 +114,7 @@ def process_pkg_csv(filename):
     markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
     markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
     markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_audio_bytes), total_audio_bytes * 100 / total_bytes))
-    markdown.write('- 可去除重复入包的资产 **%s** \n' % pretty_number(total_wasted_bytes))
+    markdown.write('- 可通过去除重复入包的资产，减少包体 **%s** \n' % pretty_number(total_wasted_bytes))
     markdown.write('- 可优化未经压缩的贴图 **%s** \n' % pretty_number(total_uncompressed_bytes))
     markdown.write('  - 若统一选用 `ASTC_RGB_4x4` 格式，则可减少包体 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/3)) # sizeof(RGB24) / bpp(astc_4x4) = 24 / 8 = 3
     markdown.write('  - 若统一选用 `ASTC_RGB_6x6` 格式，则可减少包体 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/6.74)) # sizeof(RGB24) / bpp(astc_6x6) = 24 / 3.56 = 6.74
