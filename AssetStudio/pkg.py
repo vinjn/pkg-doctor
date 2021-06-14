@@ -55,8 +55,10 @@ def process_pkg_csv(filename):
             filename = row['FileName']
             if row['Container'].startswith('assets/'):
                 row['Container'] = row['Container'][7:]
+            # row['Container'] = row['Container'].replace(' ', '_')
             if row['OriginalFile'].startswith('assets/'):
                 row['OriginalFile'] = row['OriginalFile'][7:]
+            # row['OriginalFile'] = row['OriginalFile'].replace(' ', '_')
             if filename:
                 file_path = dir_name / filename
                 if file_path.exists():
@@ -105,7 +107,7 @@ def process_pkg_csv(filename):
         elif row['Type'] == 'TextAsset':
             total_text_bytes += items_bytes
 
-        if row['Type'] == 'Texture2D' and 'BC' not in row['Format'] and 'TC' not in row['Format']:
+        if row['Type'] == 'Texture2D' and 'DXT' not in row['Format'] and 'BC' not in row['Format'] and 'TC' not in row['Format']:
             total_uncompressed_bytes += items_bytes
             total_uncompressed_count += len(items)
 
@@ -184,7 +186,8 @@ def process_pkg_csv(filename):
         if row['Type'] != 'Texture2D':
             continue
         format = row['Format']
-        if 'BC' in format or 'TC' in format or 'Alpha8' in format:
+        if 'DXT' in format or 'BC' in format or 'TC' in format:
+        # or 'Alpha8' in format:
             continue
         asset_name = row['Name']
         asset_filename = row['FileName']
