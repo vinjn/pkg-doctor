@@ -53,6 +53,10 @@ def process_pkg_csv(filename):
             # print(row)
             hash = row['Hash']
             filename = row['FileName']
+            if row['Container'].startswith('assets/'):
+                row['Container'] = row['Container'][7:]
+            if row['OriginalFile'].startswith('assets/'):
+                row['OriginalFile'] = row['OriginalFile'][7:]
             if filename:
                 file_path = dir_name / filename
                 if file_path.exists():
@@ -123,8 +127,8 @@ def process_pkg_csv(filename):
     markdown.write('\n')
 
     markdown.write('# 重复入包 Top 榜\n')
-    markdown.write('Name|Type|Size|Wasted|Dimension|Format|Preview|Container|OriginalFile\n')
-    markdown.write('----|----|----|------|---------|------|-------|---------|------------\n')
+    markdown.write('Name|Type|Wasted|Format|Preview|Container|OriginalFile\n')
+    markdown.write('----|----|------|------|-------|---------|------------\n')
     count = 0
     for k in dict(sorted(assets.items(), key=lambda item: item[1]['wasted'], reverse=True)):
         v = assets[k]
@@ -137,6 +141,7 @@ def process_pkg_csv(filename):
         row = items[0]
         containers = []
         originalFiles = []
+        preview = ''
         for item in items:
             name = item['Container']
             if not name:
@@ -146,8 +151,6 @@ def process_pkg_csv(filename):
         asset_filename = row['FileName']
         if 'png' in asset_filename:
             preview = '![](%s border="2")' % asset_filename
-        else:
-            preview = '' # save web page space
         type = row['Type']
         if type == 'Texture2D':
             type = 'Texture'
@@ -156,13 +159,11 @@ def process_pkg_csv(filename):
         format = row['Format']
         if 'Crunched' in format:
             format = format.replace('Crunched', '')
-        markdown.write('%s|%s|%s|%s|%s|%s|%s|%s|%s\n' % (
+        markdown.write('%s|%s|%s|%s|%s|%s|%s\n' % (
             row['Name'],
-            type,
-            '%s%s' % (pretty_number(row['Size']), '*%d'% item_count if item_count > 1 else ''),
+            '%s<br>%s%s' % (type, pretty_number(row['Size']), '*%d'% item_count if item_count > 1 else ''),
             '**%s**' % pretty_number(v['wasted']),
-            row['Dimension'],
-            format,
+            '%s<br>%s' % (row['Dimension'], format),
             preview,
             '<br>'.join(containers),
             '<br>'.join(originalFiles),
