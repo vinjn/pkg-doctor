@@ -4,6 +4,7 @@
 # 分析 Unity 游戏
 
 ## 生成 pkg-doctor.exe
+- 安装 [FBX SDK 2020.1](https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-1/fbx20201_fbxsdk_vs2017_win.exe)
 - 打开 AssetStudio\AssetStudio.sln
 - 选择 Release 模式
 - 生成 AssetStudio\AssetStudioGUI\bin\Release\pkg-doctor.exe
