@@ -49,6 +49,11 @@ namespace AssetStudio
             {
                 reader.Position = 16;
                 m_Header.signature = reader.ReadStringToNull();
+                if (!m_Header.signature.Contains("Unity"))
+                {
+                    reader.Position = 11;
+                    m_Header.signature = reader.ReadStringToNull();
+                }
             }
             m_Header.version = reader.ReadUInt32();
             m_Header.unityVersion = reader.ReadStringToNull();

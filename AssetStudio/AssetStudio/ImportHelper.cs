@@ -105,17 +105,21 @@ namespace AssetStudio
                         {
                             if (reader.BaseStream.Length > 16)
                             {
-                                reader.Position = 16;
-                                signature = reader.ReadStringToNull(20);
-                                switch (signature)
+                                int[] offsets = { 11, 16 };
+                                foreach (var offset in offsets)
                                 {
-                                    case "UnityWeb":
-                                    case "UnityRaw":
-                                    case "UnityArchive":
-                                    case "UnityFS":
-                                        return FileType.BundleFile;
-                                    case "UnityWebData1.0":
-                                        return FileType.WebFile;
+                                    reader.Position = offset;
+                                    signature = reader.ReadStringToNull(20);
+                                    switch (signature)
+                                    {
+                                        case "UnityWeb":
+                                        case "UnityRaw":
+                                        case "UnityArchive":
+                                        case "UnityFS":
+                                            return FileType.BundleFile;
+                                        case "UnityWebData1.0":
+                                            return FileType.WebFile;
+                                    }
                                 }
                             }
                             return FileType.ResourceFile;

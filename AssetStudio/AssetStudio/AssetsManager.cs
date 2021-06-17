@@ -136,9 +136,9 @@ namespace AssetStudio
                     assetsFileList.Add(assetsFile);
                     assetsFileListHash.Add(assetsFile.fileName);
                 }
-                catch
+                catch (Exception e)
                 {
-                    //Logger.Error($"Unable to load assets file {fileName} from {Path.GetFileName(originalPath)}");
+                    Logger.Error($"Unable to load assets file {fileName} from {Path.GetFileName(originalPath)}", e);
                     resourceFileReaders.Add(fileName, reader);
                 }
             }
@@ -165,14 +165,14 @@ namespace AssetStudio
                     }
                 }
             }
-            catch
+            catch (Exception e)
             {
-                /*var str = $"Unable to load bundle file {fileName}";
+                var str = $"Unable to load bundle file {fileName}";
                 if (parentPath != null)
                 {
                     str += $" from {Path.GetFileName(parentPath)}";
                 }
-                Logger.Error(str);*/
+                Logger.Error(str, e);
             }
             finally
             {
@@ -207,9 +207,9 @@ namespace AssetStudio
                     }
                 }
             }
-            catch
+            catch (Exception e)
             {
-                //Logger.Error($"Unable to load web file {fileName}");
+                Logger.Error($"Unable to load web file {fileName}", e);
             }
             finally
             {
