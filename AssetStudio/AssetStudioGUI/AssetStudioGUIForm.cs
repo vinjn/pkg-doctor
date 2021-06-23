@@ -2097,6 +2097,17 @@ namespace AssetStudioGUI
             }
         }
 
+        private void museToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var saveFolderDialog = new OpenFolderDialog();
+            if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                timer.Stop();
+
+                Studio.ExportMusumeAssets(saveFolderDialog.Folder, exportableAssets);
+            }
+        }
+
         private void glControl1_MouseWheel(object sender, MouseEventArgs e)
         {
             if (glControl1.Visible)

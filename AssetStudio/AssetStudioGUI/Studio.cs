@@ -512,6 +512,55 @@ namespace AssetStudioGUI
             }
         }
 
+        public static void ExportMusumeAssets(string savePath, List<AssetItem> toExportAssets)
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            int exportedCount = 0;
+
+            var animators = new List<AssetItem>();
+            var clips = new List<AssetItem>();
+
+            // pass#1: collect animators and clips
+            foreach (var asset in toExportAssets)
+            {
+                if (asset.Type == ClassIDType.Animator && asset.Container.StartsWith("assets/_gallopresources/bundle/resources/3d/chara/body"))
+                {
+                    //if (asset.Container == "assets/_gallopresources/bundle/resources/3d/chara/body/bdy1060_90/pfb_bdy1060_90.prefab")
+                    {
+                        animators.Add(asset);
+                    }
+                }
+                else if (asset.Type == ClassIDType.AnimationClip && asset.Container.StartsWith("assets/_gallopresources/bundle/resources/3d/motion/event/body/type00/anm_eve_type00_"))
+                {
+                    clips.Add(asset);
+                }
+            }
+
+            // pass#2: export one animator with all clips
+            var animator = animators[0];
+            foreach (var clip in clips)
+            {
+                try
+                {
+                    var clipName = clip.Text.Replace("anm_eve_type00_", "");
+                    Exporter.ExportAnimator(animator, Path.Combine(savePath, clipName), new List<AssetItem> { clip });
+                    exportedCount++;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Export {clip.Type}:{clip.Text} error\r\n{ex.Message}\r\n{ex.StackTrace}");
+                }
+            }
+
+            var statusText = exportedCount == 0 ? "Nothing exported." : $"Finished exporting {exportedCount} assets.";
+            StatusStripUpdate(statusText);
+
+            if (Properties.Settings.Default.openAfterExport && exportedCount > 0)
+            {
+                Process.Start(savePath);
+            }
+        }
+
         public static void ExportSplitObjects(string savePath, TreeNodeCollection nodes)
         {
             ThreadPool.QueueUserWorkItem(state =>

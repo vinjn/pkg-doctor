@@ -65,6 +65,7 @@
             this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripMenuItem();
             this.cSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateVizToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.filterTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.allToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -119,7 +120,7 @@
             this.exportAnimatorwithselectedAnimationClipMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToSceneHierarchyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showOriginalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.generateVizToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.museToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -318,7 +319,8 @@
             this.toolStripMenuItem2,
             this.toolStripMenuItem3,
             this.cSVToolStripMenuItem,
-            this.generateVizToolStripMenuItem});
+            this.generateVizToolStripMenuItem,
+            this.museToolStripMenuItem});
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
             this.exportToolStripMenuItem.Text = "Export";
@@ -429,6 +431,13 @@
             this.cSVToolStripMenuItem.Size = new System.Drawing.Size(266, 22);
             this.cSVToolStripMenuItem.Text = "Generate pkg.csv";
             this.cSVToolStripMenuItem.Click += new System.EventHandler(this.cSVToolStripMenuItem_Click);
+            // 
+            // generateVizToolStripMenuItem
+            // 
+            this.generateVizToolStripMenuItem.Name = "generateVizToolStripMenuItem";
+            this.generateVizToolStripMenuItem.Size = new System.Drawing.Size(266, 22);
+            this.generateVizToolStripMenuItem.Text = "Generate Viz";
+            this.generateVizToolStripMenuItem.Click += new System.EventHandler(this.generateVizToolStripMenuItem_Click);
             // 
             // filterTypeToolStripMenuItem
             // 
@@ -1001,12 +1010,12 @@
             this.showOriginalFileToolStripMenuItem.Visible = false;
             this.showOriginalFileToolStripMenuItem.Click += new System.EventHandler(this.showOriginalFileToolStripMenuItem_Click);
             // 
-            // generateVizToolStripMenuItem
+            // museToolStripMenuItem
             // 
-            this.generateVizToolStripMenuItem.Name = "generateVizToolStripMenuItem";
-            this.generateVizToolStripMenuItem.Size = new System.Drawing.Size(266, 22);
-            this.generateVizToolStripMenuItem.Text = "Generate Viz";
-            this.generateVizToolStripMenuItem.Click += new System.EventHandler(this.generateVizToolStripMenuItem_Click);
+            this.museToolStripMenuItem.Name = "museToolStripMenuItem";
+            this.museToolStripMenuItem.Size = new System.Drawing.Size(266, 22);
+            this.museToolStripMenuItem.Text = "Musume Animation";
+            this.museToolStripMenuItem.Click += new System.EventHandler(this.museToolStripMenuItem_Click);
             // 
             // AssetStudioGUIForm
             // 
@@ -1150,6 +1159,7 @@
         private System.Windows.Forms.TextBox dumpTextBox;
         private System.Windows.Forms.ToolStripMenuItem cSVToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem generateVizToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem museToolStripMenuItem;
     }
 }
 
