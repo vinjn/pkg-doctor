@@ -1,6 +1,9 @@
 # pkg-doctor
 包体医生，Unity 及 Unreal 游戏包体优化工具。
 
+# 下载发布版本
+https://github.com/taptap/pkg-doctor/releases
+
 # 分析 Unity 游戏
 
 ## 生成 pkg-doctor.exe
