@@ -451,7 +451,7 @@ namespace AssetStudioGUI
                             dimension = string.Format("{0}x{1} mips", texture2D.m_Width, texture2D.m_Height, texture2D.m_MipCount);
                         else
                             dimension = string.Format("{0}x{1}", texture2D.m_Width, texture2D.m_Height);
-                        if (texture2D.m_Width >= 512 && texture2D.m_Height >= 512)
+                        if (texture2D.m_Width >= 512 || texture2D.m_Height >= 512)
                         {
                             result = ExportTexture2D(item, exportPath, out filename);
                             filename = filename.Replace(exportPath, "Texture2D/");

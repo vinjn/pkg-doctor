@@ -1,9 +1,16 @@
+# -*- en coding: utf-8 -*-
+
+from __future__ import unicode_literals
 import sys
 import csv
 import json
-import datetime
-from pathlib import Path
-from collections import defaultdict
+from io import open
+from os import path
+from collections import OrderedDict
+
+if sys.version_info.major < 3:
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 markdeep_head = """
 <meta charset="utf-8" emacsmode="-*- markdown -*-">
@@ -36,17 +43,21 @@ def pretty_number(num):
 
 def process_pkg_csv(filename):
     assets = {}
-    dir_name = Path(filename).parent
+    dir_name = path.dirname(filename)
     # print(filename, dir_name)
 
-    markdown = open(dir_name / 'pkg.html', 'w', encoding='utf-8')
+    pkg_html = path.join(dir_name,'pkg.html')
+    markdown = open(pkg_html, 'w', encoding='utf-8')
     markdown.write(markdeep_head)
     # markdown.write('# %s\n' % (self.getUniqueName()))
     with open(filename, encoding='utf-8') as infile:
         markdown.write('**pkg_doctor**\n')
         markdown.write(' %s\n' % filename)
         if 'tsv' in filename:
-            reader = csv.DictReader(infile, delimiter='\t')
+            try:
+                reader = csv.DictReader(infile, delimiter='\t')
+            except:
+                reader = csv.DictReader(infile, delimiter=b'\t')
         else:
             reader = csv.DictReader(infile)
         for row in reader:
@@ -60,9 +71,9 @@ def process_pkg_csv(filename):
                 row['OriginalFile'] = row['OriginalFile'][7:]
             # row['OriginalFile'] = row['OriginalFile'].replace(' ', '_')
             if filename:
-                file_path = dir_name / filename
-                if file_path.exists():
-                    file_size = file_path.stat().st_size
+                file_path = path.join(dir_name, filename)
+                if path.exists(file_path):
+                    file_size = path.getsize(file_path)
                     hash = row['Type'] + str(file_size)
             if hash not in assets:
                 assets[hash] = {
@@ -132,7 +143,7 @@ def process_pkg_csv(filename):
     markdown.write('Name|Type|Wasted|Format|Preview|Container|OriginalFile\n')
     markdown.write('----|----|------|------|-------|---------|------------\n')
     count = 0
-    for k in dict(sorted(assets.items(), key=lambda item: item[1]['wasted'], reverse=True)):
+    for k in OrderedDict(sorted(assets.items(), key=lambda item: item[1]['wasted'], reverse=True)):
         v = assets[k]
         items = v['items']
         item_count = len(items)
@@ -179,7 +190,7 @@ def process_pkg_csv(filename):
     markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
     markdown.write('----|----|---------|------|-------|---------\n')
     count = 0
-    for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):        
+    for k in OrderedDict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):        
         v = assets[k]    
         items = v['items']
         row = items[0]
@@ -217,7 +228,7 @@ def process_pkg_csv(filename):
     markdown.write('Name|Size|Dimension|Format|Preview|Container\n')
     markdown.write('----|----|---------|------|-------|---------\n')
     count = 0
-    for k in dict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
+    for k in OrderedDict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):
         v = assets[k]    
         items = v['items']
         row = items[0]
@@ -248,10 +259,10 @@ def process_pkg_csv(filename):
             break
     markdown.write('\n')
 
-    print('\nreport -> %s\n' % (dir_name / 'pkg.html'))
+    print('\nreport -> %s\n' % pkg_html)
 
 if __name__ == '__main__':
-    pkg_csv = 'c:/svn_pool/pkg-doctor/_fp0521/base-pkg/pkg.csv'
+    pkg_csv = 'c:/svn_pool/pkg-doctor/_neon/20001-taptap-1.101.1.3-pkg/pkg.tsv'
     if len(sys.argv) > 1:
         pkg_csv = sys.argv[1]    
     process_pkg_csv(pkg_csv)
