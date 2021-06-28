@@ -49,7 +49,7 @@ def process_pkg_csv(filename):
     pkg_html = path.join(dir_name,'pkg.html')
     markdown = open(pkg_html, 'w', encoding='utf-8')
     markdown.write(markdeep_head)
-    # markdown.write('# %s\n' % (self.getUniqueName()))
+    # markdown.write('# %s/n' % (self.getUniqueName()))
     with open(filename, encoding='utf-8') as infile:
         markdown.write('**pkg_doctor**\n')
         markdown.write(' %s\n' % filename)
@@ -67,8 +67,13 @@ def process_pkg_csv(filename):
             if row['Container'].startswith('assets/'):
                 row['Container'] = row['Container'][7:]
             # row['Container'] = row['Container'].replace(' ', '_')
-            if row['OriginalFile'].startswith('assets/'):
-                row['OriginalFile'] = row['OriginalFile'][7:]
+            OriginalFile = row['OriginalFile']
+            if OriginalFile.startswith('assets/'):
+                OriginalFile = OriginalFile[7:]
+            elif 'app/Data/' in OriginalFile:
+                idx = OriginalFile.find('app/Data/')
+                OriginalFile = OriginalFile[idx + 9:]
+            row['OriginalFile'] = OriginalFile
             # row['OriginalFile'] = row['OriginalFile'].replace(' ', '_')
             if filename:
                 file_path = path.join(dir_name, filename)
@@ -262,7 +267,7 @@ def process_pkg_csv(filename):
     print('\nreport -> %s\n' % pkg_html)
 
 if __name__ == '__main__':
-    pkg_csv = 'c:/svn_pool/pkg-doctor/_neon/20001-taptap-1.101.1.3-pkg/pkg.tsv'
+    pkg_csv = 'c:/svn_pool/pkg-doctor/_t3_0628/Daily_20210663c4e5.1624845360-pkg/pkg.tsv'
     if len(sys.argv) > 1:
         pkg_csv = sys.argv[1]    
     process_pkg_csv(pkg_csv)
