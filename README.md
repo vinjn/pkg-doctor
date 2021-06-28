@@ -12,13 +12,14 @@ https://github.com/taptap/pkg-doctor/releases
 - 选择 Release 模式
 - 生成 AssetStudio\AssetStudioGUI\bin\Release\pkg-doctor.exe
 
-## 分析 Unity 游戏 apk
+## 分析 Unity 游戏 apk 或 ipa
 
 > pkg-unity.bat /path/to/game.apk
+> pkg-unity.bat /path/to/game.
 
-## 分析 Unity 游戏 assets 文件夹
+## 分析 Unity 游戏资源文件夹
 
-> pkg-unity.bat /path/to/game/assets/
+> pkg-unity.bat /path/to/game/data/
 
 # 分析 Unreal 游戏
 
@@ -27,7 +28,7 @@ https://github.com/taptap/pkg-doctor/releases
 - mklink /D UnrealPakViewer /path/to/pkg-doctor/UnrealPakViewer
 - 重新生成解决方案编译
 
-## 分析 Unreal 游戏 apk
+## 分析 Unreal 游戏 apk 或 ipa
 
-## 分析 Unreal 游戏 assets 文件夹
+## 分析 Unreal 游戏资源文件夹
 

@@ -123,9 +123,13 @@ namespace AssetStudioGUI
                 if (paths.Length == 1)
                 {
                     var path_0 = Path.GetFullPath(paths[0]);
-                    if (Path.GetExtension(path_0) == ".apk" && File.Exists(path_0))
+                    if ((Path.GetExtension(path_0) == ".apk" || Path.GetExtension(path_0) == ".ipa") && File.Exists(path_0))
                     {
-                        var path_apk = path_0.Replace(".apk", "");
+                        var path_apk = path_0;
+                        if (Path.GetExtension(path_0) == ".apk")
+                            path_apk = path_0.Replace(".apk", "");
+                        else path_apk = path_0.Replace(".ipa", "");
+
                         if (Directory.Exists(path_apk))
                             Directory.Delete(path_apk, true);
 
