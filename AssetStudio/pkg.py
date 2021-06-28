@@ -198,6 +198,7 @@ def process_pkg_csv(filename):
     for k in OrderedDict(sorted(assets.items(), key=lambda item: item[1]['items'][0]['Size'], reverse=True)):        
         v = assets[k]    
         items = v['items']
+        item_count = len(items)
         row = items[0]
         if row['Type'] != 'Texture2D':
             continue
