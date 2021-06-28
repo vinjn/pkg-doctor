@@ -365,7 +365,7 @@ namespace AssetStudioGUI
             {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
-                string csvFileName = Path.Combine(savePath, "pkg.csv");
+                string csvFileName = Path.Combine(savePath, "pkg.tsv");
                 StreamWriter csvFile = new StreamWriter(csvFileName);
 
                 if (exportType == ExportType.Csv)
@@ -466,10 +466,10 @@ namespace AssetStudioGUI
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
-            string csvFileName = Path.Combine(savePath, "pkg.csv");
+            string csvFileName = Path.Combine(savePath, "pkg.tsv");
             StreamWriter csvFile = new StreamWriter(csvFileName);
 
-            csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash,OriginalFile\n");
+            csvFile.Write("Name\tContainer\tType\tDimension\tFormat\tSize\tFileName\tHash\tOriginalFile\n");
             int toExportCount = toExportAssets.Count;
             int exportedCount = 0;
             int i = 0;
@@ -512,7 +512,7 @@ namespace AssetStudioGUI
             }
         }
 
-        public static void ExportMusumeAssets(string savePath, List<AssetItem> toExportAssets)
+        public static void ExportMiuAssets(string savePath, List<AssetItem> toExportAssets)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             int exportedCount = 0;
@@ -523,14 +523,11 @@ namespace AssetStudioGUI
             // pass#1: collect animators and clips
             foreach (var asset in toExportAssets)
             {
-                if (asset.Type == ClassIDType.Animator && asset.Container.StartsWith("assets/_gallopresources/bundle/resources/3d/chara/body"))
+                if (asset.Type == ClassIDType.Animator && asset.Container.Contains("3d/chara/body"))
                 {
-                    //if (asset.Container == "assets/_gallopresources/bundle/resources/3d/chara/body/bdy1060_90/pfb_bdy1060_90.prefab")
-                    {
-                        animators.Add(asset);
-                    }
+                    animators.Add(asset);
                 }
-                else if (asset.Type == ClassIDType.AnimationClip && asset.Container.StartsWith("assets/_gallopresources/bundle/resources/3d/motion/event/body/type00/anm_eve_type00_"))
+                else if (asset.Type == ClassIDType.AnimationClip && asset.Container.Contains("event/body/type00"))
                 {
                     clips.Add(asset);
                 }

@@ -547,11 +547,12 @@ namespace AssetStudioGUI
                     hash = sb.ToString();
                 }
             }
+            item.Text = item.Text.Replace("\0", "");
             //csvFile.Write("Name,Container,Type,Dimension,Format,Size,FileName,Hash,OriginalFile\n");
             var originalFile = item.SourceFile.originalPath ?? item.SourceFile.fullName;
             originalFile = originalFile.Replace(sourcePath, "");
             originalFile = originalFile.Replace("\\", "/");
-            csvFile.Write(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n",
+            csvFile.Write(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n",
                 item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename, hash, originalFile));
 
             return result;

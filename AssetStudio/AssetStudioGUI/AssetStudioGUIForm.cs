@@ -154,14 +154,15 @@ namespace AssetStudioGUI
                         Console.WriteLine("ExportAssets {0}", path_pkg);
                         if (!Directory.Exists(path_pkg))
                             Directory.CreateDirectory(path_pkg);
+                        
                         List<AssetItem> toExportAssets = exportableAssets;
                         toExportAssets.Sort(CompareAssetByFileSize);
                         Studio.ExportAssets2(path_pkg, toExportAssets);
 
                         glControl1.Visible = true;
 
-                        Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.csv");
-                        run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg, "pkg.csv"));
+                        Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.tsv");
+                        run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg, "pkg.tsv"));
 
                         // quit this app
                         Load += (s, e) => Close();
@@ -2104,7 +2105,7 @@ namespace AssetStudioGUI
             {
                 timer.Stop();
 
-                Studio.ExportMusumeAssets(saveFolderDialog.Folder, exportableAssets);
+                Studio.ExportMiuAssets(saveFolderDialog.Folder, exportableAssets);
             }
         }
 

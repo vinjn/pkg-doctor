@@ -1014,7 +1014,7 @@
             // 
             this.museToolStripMenuItem.Name = "museToolStripMenuItem";
             this.museToolStripMenuItem.Size = new System.Drawing.Size(266, 22);
-            this.museToolStripMenuItem.Text = "Musume Animation";
+            this.museToolStripMenuItem.Text = "Miu Animation";
             this.museToolStripMenuItem.Click += new System.EventHandler(this.museToolStripMenuItem_Click);
             // 
             // AssetStudioGUIForm
