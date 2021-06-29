@@ -66,7 +66,8 @@ namespace AssetStudio
                 case "UnityRaw":
                     if (m_Header.version == 6)
                     {
-                        goto case "UnityFS";
+                        m_Header.signature = "UnityFS";
+                        break;
                     }
                     ReadHeaderAndBlocksInfo(reader);
                     using (var blocksStream = CreateBlocksStream(path))
@@ -75,15 +76,18 @@ namespace AssetStudio
                         ReadFiles(blocksStream, path);
                     }
                     break;
-                case "UnityFS":
-                    ReadHeader(reader);
-                    ReadBlocksInfoAndDirectory(reader);
-                    using (var blocksStream = CreateBlocksStream(path))
-                    {
-                        ReadBlocks(reader, blocksStream);
-                        ReadFiles(blocksStream, path);
-                    }
+                default:
                     break;
+            }
+            if (m_Header.signature.EndsWith("FS"))
+            {
+                ReadHeader(reader);
+                ReadBlocksInfoAndDirectory(reader);
+                using (var blocksStream = CreateBlocksStream(path))
+                {
+                    ReadBlocks(reader, blocksStream);
+                    ReadFiles(blocksStream, path);
+                }
             }
         }
 
@@ -206,7 +210,7 @@ namespace AssetStudio
             m_Header.compressedBlocksInfoSize = reader.ReadUInt32();
             m_Header.uncompressedBlocksInfoSize = reader.ReadUInt32();
             m_Header.flags = reader.ReadUInt32();
-            if (m_Header.signature != "UnityFS")
+            if (!m_Header.signature.EndsWith("FS"))
             {
                 reader.ReadByte();
             }

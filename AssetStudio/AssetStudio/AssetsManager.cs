@@ -187,23 +187,26 @@ namespace AssetStudio
             try
             {
                 var webFile = new WebFile(reader);
-                foreach (var file in webFile.fileList)
+                if (webFile.fileList != null)
                 {
-                    var dummyPath = Path.Combine(Path.GetDirectoryName(fullName), file.fileName);
-                    switch (CheckFileType(file.stream, out var fileReader))
+                    foreach (var file in webFile.fileList)
                     {
-                        case FileType.AssetsFile:
-                            LoadAssetsFromMemory(dummyPath, fileReader, fullName);
-                            break;
-                        case FileType.BundleFile:
-                            LoadBundleFile(dummyPath, fileReader, fullName);
-                            break;
-                        case FileType.WebFile:
-                            LoadWebFile(dummyPath, fileReader);
-                            break;
-                        case FileType.ResourceFile:
-                            resourceFileReaders.Add(file.fileName, fileReader);
-                            break;
+                        var dummyPath = Path.Combine(Path.GetDirectoryName(fullName), file.fileName);
+                        switch (CheckFileType(file.stream, out var fileReader))
+                        {
+                            case FileType.AssetsFile:
+                                LoadAssetsFromMemory(dummyPath, fileReader, fullName);
+                                break;
+                            case FileType.BundleFile:
+                                LoadBundleFile(dummyPath, fileReader, fullName);
+                                break;
+                            case FileType.WebFile:
+                                LoadWebFile(dummyPath, fileReader);
+                                break;
+                            case FileType.ResourceFile:
+                                resourceFileReaders.Add(file.fileName, fileReader);
+                                break;
+                        }
                     }
                 }
             }

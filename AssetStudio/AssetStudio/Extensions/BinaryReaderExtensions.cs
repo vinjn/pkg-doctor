@@ -52,6 +52,19 @@ namespace AssetStudio
             return Encoding.UTF8.GetString(bytes.ToArray());
         }
 
+        public static byte[] ReadBytes(this BinaryReader reader, int maxLength = 32767)
+        {
+            var bytes = new byte[maxLength];
+            int count = 0;
+            while (reader.BaseStream.Position != reader.BaseStream.Length && count < maxLength)
+            {
+                var b = reader.ReadByte();
+                bytes[count] = b;
+                count++;
+            }
+            return bytes;
+        }
+
         public static Quaternion ReadQuaternion(this BinaryReader reader)
         {
             return new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());

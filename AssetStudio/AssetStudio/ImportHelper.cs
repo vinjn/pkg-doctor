@@ -72,6 +72,11 @@ namespace AssetStudio
         private static FileType CheckFileType(EndianBinaryReader reader)
         {
             var signature = reader.ReadStringToNull(20);
+            if (signature == "")
+            {
+                var bytes = reader.ReadBytes(20);
+
+            }
             reader.Position = 0;
             switch (signature)
             {
@@ -103,6 +108,9 @@ namespace AssetStudio
                         }
                         else
                         {
+                            if (signature.EndsWith("FS"))
+                                return FileType.BundleFile;
+
                             if (reader.BaseStream.Length > 16)
                             {
                                 int[] offsets = { 11, 16 };
