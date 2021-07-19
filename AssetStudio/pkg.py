@@ -75,6 +75,8 @@ def process_pkg_csv(filename):
                 OriginalFile = OriginalFile[idx + 9:]
             row['OriginalFile'] = OriginalFile
             # row['OriginalFile'] = row['OriginalFile'].replace(' ', '_')
+            if not hash:
+                hash = row['Type']+row['Dimension']+row['Format']+row['Size']
             if filename:
                 file_path = path.join(dir_name, filename)
                 if path.exists(file_path):
