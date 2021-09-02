@@ -159,14 +159,16 @@ def process_pkg_csv(filename):
             continue
 
         row = items[0]
+        names = []
         containers = []
         originalFiles = []
         preview = ''
         for item in items:
-            name = item['Container']
-            if not name:
-                name = '""'
-            containers.append(name)
+            container = item['Container']
+            if not container:
+                container = '""'
+            names.append(item['Name'])
+            containers.append(container)
             originalFiles.append(item['OriginalFile'])
         asset_filename = row['FileName']
         if 'png' in asset_filename:
@@ -180,7 +182,7 @@ def process_pkg_csv(filename):
         if 'Crunched' in format:
             format = format.replace('Crunched', '')
         markdown.write('%s|%s|%s|%s|%s|%s|%s\n' % (
-            row['Name'],
+            '<br>'.join(names),
             '%s<br>%s%s' % (type, pretty_number(row['Size']), '*%d'% item_count if item_count > 1 else ''),
             '**%s**' % pretty_number(v['wasted']),
             '%s<br>%s' % (row['Dimension'], format),
