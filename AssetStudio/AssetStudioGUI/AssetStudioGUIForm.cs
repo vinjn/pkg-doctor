@@ -83,10 +83,10 @@ namespace AssetStudioGUI
 
         [DllImport("gdi32.dll")]
         private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
-        private void run_python(string cmd, string args)
+        private void run_exe(string exeName, string cmd, string args)
         {
             ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = "python.exe";
+            start.FileName = exeName;
             start.Arguments = string.Format("{0} {1}", cmd, args);
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
@@ -165,16 +165,16 @@ namespace AssetStudioGUI
 
                         glControl1.Visible = true;
 
-                        var pkg_exe_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "script.exe");
-                        if (File.Exists(pkg_exe_path))
+                        var script_exe = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "script.exe");
+                        if (File.Exists(script_exe))
                         {
                             Console.WriteLine("script.exe {0}", path_pkg + "/pkg.tsv");
-                            run_python(pkg_exe_path, Path.Combine(path_pkg, "pkg.tsv"));
+                            run_exe(script_exe, Path.Combine(path_pkg, "pkg.tsv"), "");
                         }
                         else
                         {
                             Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.tsv");
-                            run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg, "pkg.tsv"));
+                            run_exe("python.exe", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg, "pkg.tsv"));
                         }
 
                         // quit this app
