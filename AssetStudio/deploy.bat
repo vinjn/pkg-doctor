@@ -1,3 +1,5 @@
+@REM C:\Users\xindong\AppData\Local\Programs\Python\Python37\Scripts\pyinstaller.exe -F pkg.py -n script.exe
+
 set mydate=%date:/=%
 set TIMESTAMP=%mydate: =_%
 set OUTPUT=pkg-doctor-%TIMESTAMP%
@@ -10,3 +12,4 @@ robocopy %SRC%/ %OUTPUT% *.py
 robocopy %SRC%/ %OUTPUT% *.exe
 robocopy %SRC%/ %OUTPUT% *.config
 robocopy %SRC%/x64 %OUTPUT%/x64 *.dll
+robocopy dist %OUTPUT%/ *

@@ -165,8 +165,17 @@ namespace AssetStudioGUI
 
                         glControl1.Visible = true;
 
-                        Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.tsv");
-                        run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg, "pkg.tsv"));
+                        var pkg_exe_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "script.exe");
+                        if (File.Exists(pkg_exe_path))
+                        {
+                            Console.WriteLine("script.exe {0}", path_pkg + "/pkg.tsv");
+                            run_python(pkg_exe_path, Path.Combine(path_pkg, "pkg.tsv"));
+                        }
+                        else
+                        {
+                            Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.tsv");
+                            run_python(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pkg.py"), Path.Combine(path_pkg, "pkg.tsv"));
+                        }
 
                         // quit this app
                         Load += (s, e) => Close();
