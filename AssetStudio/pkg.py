@@ -101,29 +101,47 @@ def process_pkg_csv(filename):
     total_audio_bytes = 0
     total_text_bytes = 0
     total_animation_bytes = 0
+
+    # TODO: refactor
     total_wasted_bytes = 0
+    total_wasted_texture_bytes = 0
+    total_wasted_shader_bytes = 0
+    total_wasted_font_bytes = 0
+    total_wasted_mesh_bytes = 0
+    total_wasted_audio_bytes = 0
+    total_wasted_text_bytes = 0
+    total_wasted_animation_bytes = 0
+
     total_uncompressed_bytes = 0
     total_uncompressed_count = 0
     for k, v in assets.items():
-        total_wasted_bytes += v['wasted']
+        wasted_bytes = v['wasted']
+        total_wasted_bytes += wasted_bytes
         items = v['items']
         row = items[0]
         items_bytes = row['Size'] * len(items)
         total_bytes += items_bytes
         if row['Type'] == 'Texture2D':
             total_texture_bytes += items_bytes
+            total_wasted_texture_bytes += wasted_bytes
         elif row['Type'] == 'Shader':
             total_shader_bytes += items_bytes
+            total_wasted_shader_bytes += wasted_bytes
         elif row['Type'] == 'Font':
             total_font_bytes += items_bytes
+            total_wasted_font_bytes += wasted_bytes
         elif row['Type'] == 'Mesh':
             total_mesh_bytes += items_bytes
+            total_wasted_mesh_bytes += wasted_bytes
         elif row['Type'] == 'AudioClip':
             total_audio_bytes += items_bytes
+            total_wasted_audio_bytes += wasted_bytes
         elif row['Type'] == 'AnimationClip':
             total_animation_bytes += items_bytes
+            total_wasted_animation_bytes += wasted_bytes
         elif row['Type'] == 'TextAsset':
             total_text_bytes += items_bytes
+            total_wasted_text_bytes += wasted_bytes
 
         if row['Type'] == 'Texture2D' and 'DXT' not in row['Format'] and 'BC' not in row['Format'] and 'TC' not in row['Format']:
             total_uncompressed_bytes += items_bytes
@@ -138,7 +156,16 @@ def process_pkg_csv(filename):
     markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
     markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
     markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_audio_bytes), total_audio_bytes * 100 / total_bytes))
+
     markdown.write('- 其中重复入包的资产，可减去 **%s**\n' % pretty_number(total_wasted_bytes))
+    markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_texture_bytes), total_wasted_texture_bytes * 100 / total_wasted_bytes))
+    markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_mesh_bytes), total_wasted_mesh_bytes * 100 / total_wasted_bytes))
+    markdown.write('  - AnimationClip: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_animation_bytes), total_wasted_animation_bytes * 100 / total_wasted_bytes))
+    markdown.write('  - TextAsset: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_text_bytes), total_wasted_text_bytes * 100 / total_wasted_bytes))
+    markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_shader_bytes), total_wasted_shader_bytes * 100 / total_wasted_bytes))
+    markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_font_bytes), total_wasted_font_bytes * 100 / total_wasted_bytes))
+    markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_audio_bytes), total_wasted_audio_bytes * 100 / total_wasted_bytes))
+
     markdown.write('- 其中未经压缩的贴图尺寸为 **%s** \n' % pretty_number(total_uncompressed_bytes))
     markdown.write('  - 若统一选用 `ASTC_RGB_4x4` 格式，可减去 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/3)) # sizeof(RGB24) / bpp(astc_4x4) = 24 / 8 = 3
     markdown.write('  - 若统一选用 `ASTC_RGB_6x6` 格式，可减去 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/6.74)) # sizeof(RGB24) / bpp(astc_6x6) = 24 / 3.56 = 6.74
