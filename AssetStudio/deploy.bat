@@ -1,4 +1,4 @@
-@REM C:\Users\xindong\AppData\Local\Programs\Python\Python37\Scripts\pyinstaller.exe -F pkg.py -n script.exe
+pyinstaller.exe -F pkg.py -n script.exe
 
 set mydate=%date:/=%
 set TIMESTAMP=%mydate: =_%
