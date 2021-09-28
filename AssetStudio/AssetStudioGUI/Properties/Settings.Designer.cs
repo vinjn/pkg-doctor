@@ -109,7 +109,7 @@ namespace AssetStudioGUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("PNG")]
+        [global::System.Configuration.DefaultSettingValueAttribute("JPEG")]
         public string convertType {
             get {
                 return ((string)(this["convertType"]));

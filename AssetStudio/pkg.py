@@ -198,7 +198,7 @@ def process_pkg_csv(filename):
             containers.append(container)
             originalFiles.append(item['OriginalFile'])
         asset_filename = row['FileName']
-        if 'png' in asset_filename:
+        if 'png' in asset_filename or 'jpeg' in asset_filename:
             preview = '![](%s border="2")' % asset_filename
         type = row['Type']
         if type == 'Texture2D':
@@ -243,7 +243,7 @@ def process_pkg_csv(filename):
             # from SDK
             continue
         
-        if 'png' in asset_filename:
+        if 'png' in asset_filename or 'jpeg' in asset_filename:
             preview = '![](%s border="2")' % asset_filename
         else:
             preview = ''   
@@ -279,7 +279,7 @@ def process_pkg_csv(filename):
         asset_filename = row['FileName']
         if '_1024' in asset_name or '_2048' in asset_name or 'sactx' in asset_name or 'lightmap' in asset_name.lower():
             continue
-        if 'png' in asset_filename:
+        if 'png' in asset_filename or 'jpeg' in asset_filename:
             preview = '![](%s border="2")' % asset_filename
         else:
             preview = ''   
