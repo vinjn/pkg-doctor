@@ -149,22 +149,24 @@ def process_pkg_csv(filename):
 
     markdown.write('# 包体概览\n')
     markdown.write('- 对 apk 解压后的现有资产尺寸: **%s**\n' % pretty_number(total_bytes))
-    markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_texture_bytes), total_texture_bytes * 100 / total_bytes))
-    markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_mesh_bytes), total_mesh_bytes * 100 / total_bytes))
-    markdown.write('  - AnimationClip: **%s** (%.2f%%)\n' % (pretty_number(total_animation_bytes), total_animation_bytes * 100 / total_bytes))
-    markdown.write('  - TextAsset: **%s** (%.2f%%)\n' % (pretty_number(total_text_bytes), total_text_bytes * 100 / total_bytes))
-    markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
-    markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
-    markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_audio_bytes), total_audio_bytes * 100 / total_bytes))
+    if total_bytes > 0:
+        markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_texture_bytes), total_texture_bytes * 100 / total_bytes))
+        markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_mesh_bytes), total_mesh_bytes * 100 / total_bytes))
+        markdown.write('  - AnimationClip: **%s** (%.2f%%)\n' % (pretty_number(total_animation_bytes), total_animation_bytes * 100 / total_bytes))
+        markdown.write('  - TextAsset: **%s** (%.2f%%)\n' % (pretty_number(total_text_bytes), total_text_bytes * 100 / total_bytes))
+        markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_shader_bytes), total_shader_bytes * 100 / total_bytes))
+        markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_font_bytes), total_font_bytes * 100 / total_bytes))
+        markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_audio_bytes), total_audio_bytes * 100 / total_bytes))
 
     markdown.write('- 其中重复入包的资产，可减去 **%s**\n' % pretty_number(total_wasted_bytes))
-    markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_texture_bytes), total_wasted_texture_bytes * 100 / total_wasted_bytes))
-    markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_mesh_bytes), total_wasted_mesh_bytes * 100 / total_wasted_bytes))
-    markdown.write('  - AnimationClip: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_animation_bytes), total_wasted_animation_bytes * 100 / total_wasted_bytes))
-    markdown.write('  - TextAsset: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_text_bytes), total_wasted_text_bytes * 100 / total_wasted_bytes))
-    markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_shader_bytes), total_wasted_shader_bytes * 100 / total_wasted_bytes))
-    markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_font_bytes), total_wasted_font_bytes * 100 / total_wasted_bytes))
-    markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_audio_bytes), total_wasted_audio_bytes * 100 / total_wasted_bytes))
+    if total_wasted_bytes > 0:
+        markdown.write('  - Texture: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_texture_bytes), total_wasted_texture_bytes * 100 / total_wasted_bytes))
+        markdown.write('  - Mesh: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_mesh_bytes), total_wasted_mesh_bytes * 100 / total_wasted_bytes))
+        markdown.write('  - AnimationClip: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_animation_bytes), total_wasted_animation_bytes * 100 / total_wasted_bytes))
+        markdown.write('  - TextAsset: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_text_bytes), total_wasted_text_bytes * 100 / total_wasted_bytes))
+        markdown.write('  - Shader: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_shader_bytes), total_wasted_shader_bytes * 100 / total_wasted_bytes))
+        markdown.write('  - Font: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_font_bytes), total_wasted_font_bytes * 100 / total_wasted_bytes))
+        markdown.write('  - AudioClip: **%s** (%.2f%%)\n' % (pretty_number(total_wasted_audio_bytes), total_wasted_audio_bytes * 100 / total_wasted_bytes))
 
     markdown.write('- 其中未经压缩的贴图尺寸为 **%s** \n' % pretty_number(total_uncompressed_bytes))
     markdown.write('  - 若统一选用 `ASTC_RGB_4x4` 格式，可减去 **%s**\n' % pretty_number(total_uncompressed_bytes - total_uncompressed_bytes/3)) # sizeof(RGB24) / bpp(astc_4x4) = 24 / 8 = 3
