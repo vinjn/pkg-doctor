@@ -2015,6 +2015,9 @@ namespace AssetStudioGUI
 
         private void glControl1_Load(object sender, EventArgs e)
         {
+            // TODO
+            return;
+
             InitOpenTK();
             glControlLoaded = true;
 
