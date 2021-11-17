@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+using AssetStudio;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using AssetStudio;
-using Newtonsoft.Json;
 using TGASharpLib;
-using System.Security.Cryptography;
 
 namespace AssetStudioGUI
 {
@@ -431,6 +430,7 @@ namespace AssetStudioGUI
             }
         }
 
+        static string[] wrapModes = { "Repeat", "Clamp" };
         public static bool ExportVizFile(AssetItem item, string savePath, StreamWriter csvFile)
         {
             bool result = true;
@@ -438,10 +438,10 @@ namespace AssetStudioGUI
             string hash = "";
             string dimension = "";
             string format = "";
+            string wrapMode = "";
             byte[] rawData = null;
             var sourcePath = savePath.Replace("-pkg", "\\");
             var exportPath = Path.Combine(savePath, item.TypeString);
-
             switch (item.Type)
             {
                 case ClassIDType.Texture2D:
@@ -461,6 +461,8 @@ namespace AssetStudioGUI
                             rawData = texture2D.image_data.GetData();
                         }
                         format = texture2D.m_TextureFormat.ToString();
+
+                        wrapMode = wrapModes[texture2D.m_TextureSettings.m_WrapMode];
                         break;
                     }
                 case ClassIDType.Texture2DArray:
@@ -503,7 +505,7 @@ namespace AssetStudioGUI
                         }
                         //PreviewAsset()
                         //result = ExportRawFile(item, exportPath, out filename);
-                        dimension = string.Format("vtx:{0} idx:{1} uv:{2} n:{3}", 
+                        dimension = string.Format("vtx:{0} idx:{1} uv:{2} n:{3}",
                             mesh.m_VertexCount, mesh.m_Indices.Count, mesh.m_UV0?.Length, mesh.m_Normals?.Length);
                         //filename = filename.Replace(exportPath, "Mesh/");
                         break;
@@ -552,8 +554,8 @@ namespace AssetStudioGUI
             var originalFile = item.SourceFile.originalPath ?? item.SourceFile.fullName;
             originalFile = originalFile.Replace(sourcePath, "");
             originalFile = originalFile.Replace("\\", "/");
-            csvFile.Write(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n",
-                item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename, hash, originalFile));
+            csvFile.Write(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\n",
+                item.Text, item.Container, item.TypeString, dimension, format, item.FullSize, filename, hash, originalFile, wrapMode));
 
             return result;
         }

@@ -1,11 +1,10 @@
-﻿using AssetStudio;
+using AssetStudio;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using static AssetStudioGUI.Exporter;
@@ -469,7 +468,7 @@ namespace AssetStudioGUI
             string csvFileName = Path.Combine(savePath, "pkg.tsv");
             StreamWriter csvFile = new StreamWriter(csvFileName);
 
-            csvFile.Write("Name\tContainer\tType\tDimension\tFormat\tSize\tFileName\tHash\tOriginalFile\n");
+            csvFile.Write("Name\tContainer\tType\tDimension\tFormat\tSize\tFileName\tHash\tOriginalFile\tWrapMode\n");
             int toExportCount = toExportAssets.Count;
             int exportedCount = 0;
             int i = 0;
