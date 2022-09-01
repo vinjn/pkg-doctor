@@ -9,6 +9,7 @@ mkdir %OUTPUT%
 set SRC=AssetStudioGUI/bin/Release/net472
 
 robocopy %SRC%/ %OUTPUT% *.dll
+robocopy %SRC%/ %OUTPUT%%x64% *.dll
 robocopy %SRC%/ %OUTPUT% *.py
 robocopy %SRC%/ %OUTPUT% *.exe
 robocopy %SRC%/ %OUTPUT% *.config
