@@ -4,7 +4,7 @@ namespace AssetStudio
 {
     public class StreamingInfo
     {
-        public ulong offset;
+        public long offset; //ulong
         public uint size;
         public string path;
 
@@ -14,7 +14,7 @@ namespace AssetStudio
 
             if (version[0] >= 2020) //2020.1 and up
             {
-                offset = reader.ReadUInt64();
+                offset = reader.ReadInt64();
             }
             else
             {
@@ -134,7 +134,7 @@ namespace AssetStudio
             ResourceReader resourceReader;
             if (!string.IsNullOrEmpty(m_StreamData?.path))
             {
-                resourceReader = new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, (int)m_StreamData.size);
+                resourceReader = new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size);
             }
             else
             {
@@ -151,10 +151,13 @@ namespace AssetStudio
         RGB24,
         RGBA32,
         ARGB32,
-        RGB565 = 7,
-        R16 = 9,
+        ARGBFloat,
+        RGB565,
+        BGR24,
+        R16,
         DXT1,
-        DXT5 = 12,
+        DXT3,
+        DXT5,
         RGBA4444,
         BGRA32,
         RHalf,
@@ -165,11 +168,12 @@ namespace AssetStudio
         RGBAFloat,
         YUY2,
         RGB9e5Float,
-        BC4 = 26,
-        BC5,
-        BC6H = 24,
+        RGBFloat,
+        BC6H,
         BC7,
-        DXT1Crunched = 28,
+        BC4,
+        BC5,
+        DXT1Crunched,
         DXT5Crunched,
         PVRTC_RGB2,
         PVRTC_RGBA2,

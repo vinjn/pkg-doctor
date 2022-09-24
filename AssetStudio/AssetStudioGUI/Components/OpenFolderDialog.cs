@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -15,12 +14,13 @@ namespace AssetStudioGUI
 
         internal DialogResult ShowDialog(IWin32Window owner = null)
         {
+//#if NETFRAMEWORK
             if (Environment.OSVersion.Version.Major >= 6)
             {
                 return ShowVistaDialog(owner);
             }
-
-            return ShowLegacyDialog(owner);
+//#endif
+            return ShowFolderBrowserDialog(owner);
         }
 
         private DialogResult ShowVistaDialog(IWin32Window owner)
@@ -29,9 +29,11 @@ namespace AssetStudioGUI
             frm.GetOptions(out var options);
             options |= NativeMethods.FOS_PICKFOLDERS | NativeMethods.FOS_FORCEFILESYSTEM | NativeMethods.FOS_NOVALIDATE | NativeMethods.FOS_NOTESTFILECREATE | NativeMethods.FOS_DONTADDTORECENT;
             frm.SetOptions(options);
-            if (Title != null)
+            if (!string.IsNullOrEmpty(Title))
+            {
                 frm.SetTitle(Title);
-            if (InitialFolder != null)
+            }
+            if (!string.IsNullOrEmpty(InitialFolder))
             {
                 var riid = new Guid("43826D1E-E718-42EE-BC55-A1E261C37BFE"); //IShellItem  
                 if (NativeMethods.SHCreateItemFromParsingName(InitialFolder, IntPtr.Zero, ref riid, out var directoryShellItem) == NativeMethods.S_OK)
@@ -39,7 +41,7 @@ namespace AssetStudioGUI
                     frm.SetFolder(directoryShellItem);
                 }
             }
-            if (DefaultFolder != null)
+            if (!string.IsNullOrEmpty(DefaultFolder))
             {
                 var riid = new Guid("43826D1E-E718-42EE-BC55-A1E261C37BFE"); //IShellItem  
                 if (NativeMethods.SHCreateItemFromParsingName(DefaultFolder, IntPtr.Zero, ref riid, out var directoryShellItem) == NativeMethods.S_OK)
@@ -72,7 +74,7 @@ namespace AssetStudioGUI
             return DialogResult.Cancel;
         }
 
-        private DialogResult ShowLegacyDialog(IWin32Window owner)
+        private DialogResult ShowFolderBrowserDialog(IWin32Window owner)
         {
             using (var frm = new FolderBrowserDialog())
             {
@@ -80,13 +82,20 @@ namespace AssetStudioGUI
                 {
                     frm.SelectedPath = InitialFolder;
                 }
-                if ((owner == null ? frm.ShowDialog() : frm.ShowDialog(owner)) == DialogResult.OK)
+#if !NETFRAMEWORK
+                if (Title != null)
                 {
-                    Folder = Path.GetDirectoryName(frm.SelectedPath);
-                    return DialogResult.OK;
+                    frm.Description = Title;
+                    frm.UseDescriptionForTitle = true;
                 }
-
-                return DialogResult.Cancel;
+#endif
+                var result = owner == null ? frm.ShowDialog() : frm.ShowDialog(owner);
+                if (result == DialogResult.OK)
+                {
+                    Folder = frm.SelectedPath;
+                    return result;
+                }
+                return result;
             }
         }
     }

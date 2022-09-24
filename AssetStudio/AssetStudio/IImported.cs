@@ -73,6 +73,28 @@ namespace AssetStudio
             return null;
         }
 
+        public ImportedFrame FindRelativeFrameWithPath(string path)
+        {
+            var subs = path.Split(new[] { '/' }, 2);
+            foreach (var child in children)
+            {
+                if (child.Name == subs[0])
+                {
+                    if (subs.Length == 1)
+                    {
+                        return child;
+                    }
+                    else
+                    {
+                        var result = child.FindRelativeFrameWithPath(subs[1]);
+                        if (result != null)
+                            return result;
+                    }
+                }
+            }
+            return null;
+        }
+
         public ImportedFrame FindFrame(string name)
         {
             if (Name == name)
@@ -132,6 +154,7 @@ namespace AssetStudio
     public class ImportedMesh
     {
         public string Path { get; set; }
+        public List<ImportedVertex> VertexList { get; set; }
         public List<ImportedSubmesh> SubmeshList { get; set; }
         public List<ImportedBone> BoneList { get; set; }
         public bool hasNormal { get; set; }
@@ -142,9 +165,9 @@ namespace AssetStudio
 
     public class ImportedSubmesh
     {
-        public List<ImportedVertex> VertexList { get; set; }
         public List<ImportedFace> FaceList { get; set; }
         public string Material { get; set; }
+        public int BaseVertex { get; set; }
     }
 
     public class ImportedVertex

@@ -9,7 +9,7 @@ namespace AssetStudio
     public sealed class AudioClip : NamedObject
     {
         public int m_Format;
-        public AudioType m_Type;
+        public FMODSoundType m_Type;
         public bool m_3D;
         public bool m_UseHardware;
 
@@ -27,8 +27,8 @@ namespace AssetStudio
         public AudioCompressionFormat m_CompressionFormat;
 
         public string m_Source;
-        public ulong m_Offset;
-        public long m_Size;
+        public long m_Offset; //ulong
+        public long m_Size; //ulong
         public ResourceReader m_AudioData;
 
         public AudioClip(ObjectReader reader) : base(reader)
@@ -36,7 +36,7 @@ namespace AssetStudio
             if (version[0] < 5)
             {
                 m_Format = reader.ReadInt32();
-                m_Type = (AudioType)reader.ReadInt32();
+                m_Type = (FMODSoundType)reader.ReadInt32();
                 m_3D = reader.ReadBoolean();
                 m_UseHardware = reader.ReadBoolean();
                 reader.AlignStream();
@@ -74,7 +74,7 @@ namespace AssetStudio
 
                 //StreamedResource m_Resource
                 m_Source = reader.ReadAlignedString();
-                m_Offset = reader.ReadUInt64();
+                m_Offset = reader.ReadInt64();
                 m_Size = reader.ReadInt64();
                 m_CompressionFormat = (AudioCompressionFormat)reader.ReadInt32();
             }
@@ -82,44 +82,61 @@ namespace AssetStudio
             ResourceReader resourceReader;
             if (!string.IsNullOrEmpty(m_Source))
             {
-                resourceReader = new ResourceReader(m_Source, assetsFile, m_Offset, (int)m_Size);
+                resourceReader = new ResourceReader(m_Source, assetsFile, m_Offset, m_Size);
             }
             else
             {
-                resourceReader = new ResourceReader(reader, reader.BaseStream.Position, (int)m_Size);
+                resourceReader = new ResourceReader(reader, reader.BaseStream.Position, m_Size);
             }
             m_AudioData = resourceReader;
         }
     }
 
-    public enum AudioType
+    public enum FMODSoundType
     {
-        UNKNOWN,
-        ACC,
-        AIFF,
+        UNKNOWN = 0,
+        ACC = 1,
+        AIFF = 2,
+        ASF = 3,
+        AT3 = 4,
+        CDDA = 5,
+        DLS = 6,
+        FLAC = 7,
+        FSB = 8,
+        GCADPCM = 9,
         IT = 10,
+        MIDI = 11,
         MOD = 12,
-        MPEG,
-        OGGVORBIS,
+        MPEG = 13,
+        OGGVORBIS = 14,
+        PLAYLIST = 15,
+        RAW = 16,
         S3M = 17,
+        SF2 = 18,
+        USER = 19,
         WAV = 20,
-        XM,
-        XMA,
-        VAG,
-        AUDIOQUEUE
+        XM = 21,
+        XMA = 22,
+        VAG = 23,
+        AUDIOQUEUE = 24,
+        XWMA = 25,
+        BCWAV = 26,
+        AT9 = 27,
+        VORBIS = 28,
+        MEDIA_FOUNDATION = 29
     }
 
     public enum AudioCompressionFormat
     {
-        PCM,
-        Vorbis,
-        ADPCM,
-        MP3,
-        VAG,
-        HEVAG,
-        XMA,
-        AAC,
-        GCADPCM,
-        ATRAC9
+        PCM = 0,
+        Vorbis = 1,
+        ADPCM = 2,
+        MP3 = 3,
+        PSMVAG = 4,
+        HEVAG = 5,
+        XMA = 6,
+        AAC = 7,
+        GCADPCM = 8,
+        ATRAC9 = 9
     }
 }

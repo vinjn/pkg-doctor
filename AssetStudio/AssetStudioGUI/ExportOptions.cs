@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using AssetStudio;
+using System;
 using System.Windows.Forms;
 
 namespace AssetStudioGUI
@@ -19,7 +13,7 @@ namespace AssetStudioGUI
             restoreExtensionName.Checked = Properties.Settings.Default.restoreExtensionName;
             converttexture.Checked = Properties.Settings.Default.convertTexture;
             convertAudio.Checked = Properties.Settings.Default.convertAudio;
-            var str = Properties.Settings.Default.convertType;
+            var str = Properties.Settings.Default.convertType.ToString();
             foreach (Control c in panel1.Controls)
             {
                 if (c.Text == str)
@@ -36,10 +30,12 @@ namespace AssetStudioGUI
             exportAnimations.Checked = Properties.Settings.Default.exportAnimations;
             exportBlendShape.Checked = Properties.Settings.Default.exportBlendShape;
             castToBone.Checked = Properties.Settings.Default.castToBone;
+            exportAllUvsAsDiffuseMaps.Checked = Properties.Settings.Default.exportAllUvsAsDiffuseMaps;
             boneSize.Value = Properties.Settings.Default.boneSize;
             scaleFactor.Value = Properties.Settings.Default.scaleFactor;
             fbxVersion.SelectedIndex = Properties.Settings.Default.fbxVersion;
             fbxFormat.SelectedIndex = Properties.Settings.Default.fbxFormat;
+
         }
 
         private void OKbutton_Click(object sender, EventArgs e)
@@ -52,7 +48,7 @@ namespace AssetStudioGUI
             {
                 if (((RadioButton)c).Checked)
                 {
-                    Properties.Settings.Default.convertType = c.Text;
+                    Properties.Settings.Default.convertType = (ImageFormat)Enum.Parse(typeof(ImageFormat), c.Text);
                     break;
                 }
             }
@@ -64,6 +60,7 @@ namespace AssetStudioGUI
             Properties.Settings.Default.exportAnimations = exportAnimations.Checked;
             Properties.Settings.Default.exportBlendShape = exportBlendShape.Checked;
             Properties.Settings.Default.castToBone = castToBone.Checked;
+            Properties.Settings.Default.exportAllUvsAsDiffuseMaps = exportAllUvsAsDiffuseMaps.Checked;
             Properties.Settings.Default.boneSize = boneSize.Value;
             Properties.Settings.Default.scaleFactor = scaleFactor.Value;
             Properties.Settings.Default.fbxVersion = fbxVersion.SelectedIndex;
@@ -78,5 +75,6 @@ namespace AssetStudioGUI
             DialogResult = DialogResult.Cancel;
             Close();
         }
+
     }
 }

@@ -18,23 +18,23 @@ namespace AssetStudio
 
     public enum SpritePackingRotation
     {
-        kSPRNone = 0,
-        kSPRFlipHorizontal = 1,
-        kSPRFlipVertical = 2,
-        kSPRRotate180 = 3,
-        kSPRRotate90 = 4
+        None = 0,
+        FlipHorizontal = 1,
+        FlipVertical = 2,
+        Rotate180 = 3,
+        Rotate90 = 4
     };
 
     public enum SpritePackingMode
     {
-        kSPMTight = 0,
-        kSPMRectangle
+        Tight = 0,
+        Rectangle
     };
 
     public enum SpriteMeshType
     {
-        kSpriteMeshTypeFullRect,
-        kSpriteMeshTypeTight
+        FullRect,
+        Tight
     };
 
     public class SpriteSettings
@@ -197,7 +197,7 @@ namespace AssetStudio
         public Vector2 m_Offset;
         public Vector4 m_Border;
         public float m_PixelsToUnits;
-        public Vector2 m_Pivot;
+        public Vector2 m_Pivot = new Vector2(0.5f, 0.5f);
         public uint m_Extrude;
         public bool m_IsPolygon;
         public KeyValuePair<Guid, long> m_RenderDataKey;

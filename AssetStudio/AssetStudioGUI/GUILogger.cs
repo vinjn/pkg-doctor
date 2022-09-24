@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using AssetStudio;
+﻿using AssetStudio;
+using System;
+using System.Windows.Forms;
 
 namespace AssetStudioGUI
 {
     class GUILogger : ILogger
     {
+        public bool ShowErrorMessage = true;
         private Action<string> action;
 
         public GUILogger(Action<string> action)
@@ -17,7 +16,19 @@ namespace AssetStudioGUI
 
         public void Log(LoggerEvent loggerEvent, string message)
         {
-            action(message);
+            switch (loggerEvent)
+            {
+                case LoggerEvent.Error:
+                    if (ShowErrorMessage)
+                    {
+                        MessageBox.Show(message);
+                    }
+                    break;
+                default:
+                    action(message);
+                    break;
+            }
+
         }
     }
 }

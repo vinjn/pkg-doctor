@@ -14,6 +14,7 @@ namespace AssetStudio
         public static void Info(string message) => Default.Log(LoggerEvent.Info, message);
         public static void Warning(string message) => Default.Log(LoggerEvent.Warning, message);
         public static void Error(string message) => Default.Log(LoggerEvent.Error, message);
+
         public static void Error(string message, Exception e)
         {
             var sb = new StringBuilder();
@@ -21,6 +22,5 @@ namespace AssetStudio
             sb.AppendLine(e.ToString());
             Default.Log(LoggerEvent.Error, sb.ToString());
         }
-
     }
 }

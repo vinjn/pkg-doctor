@@ -1,4 +1,18 @@
+## 修改
+
+- 升级AssetStudio为最新
+- 升级为[FBX SDK 2020.2.1](https://damassets.autodesk.net/content/dam/autodesk/www/adn/fbx/2020)（AssetStudio需要）
+- 编译器版本为Vs2022（AssetStudio需要）
+- 修改运行方式，这里面没修改解决方案直接用的AssetStudio
+
+  ```shell
+  AssetStudioGUI.exe /path/to/game.apk
+  ```
+
+  
+
 # pkg-doctor
+
 包体医生，Unity 及 Unreal 游戏包体优化工具。
 
 # 分析 Unity 游戏包体

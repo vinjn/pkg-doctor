@@ -1,240 +1,223 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using Texture2DDecoder;
 
 namespace AssetStudio
 {
     public class Texture2DConverter
     {
+        private ResourceReader reader;
         private int m_Width;
         private int m_Height;
         private TextureFormat m_TextureFormat;
-        private int image_data_size;
-        private byte[] image_data;
         private int[] version;
         private BuildTarget platform;
+        private int outPutSize;
 
         public Texture2DConverter(Texture2D m_Texture2D)
         {
-            image_data = m_Texture2D.image_data.GetData();
-            image_data_size = image_data.Length;
+            reader = m_Texture2D.image_data;
             m_Width = m_Texture2D.m_Width;
             m_Height = m_Texture2D.m_Height;
             m_TextureFormat = m_Texture2D.m_TextureFormat;
             version = m_Texture2D.version;
             platform = m_Texture2D.platform;
+            outPutSize = m_Width * m_Height * 4;
         }
 
-        public Bitmap ConvertToBitmap(bool flip)
+        public bool DecodeTexture2D(byte[] bytes)
         {
-            if (image_data == null || image_data.Length == 0)
-                return null;
-            var buff = DecodeTexture2D();
-            if (buff == null)
+            if (reader.Size == 0 || m_Width == 0 || m_Height == 0)
             {
-                return null;
+                return false;
             }
-            var bitmap = new Bitmap(m_Width, m_Height, PixelFormat.Format32bppArgb);
-            var bmpData = bitmap.LockBits(new Rectangle(0, 0, m_Width, m_Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-            Marshal.Copy(buff, 0, bmpData.Scan0, buff.Length);
-            bitmap.UnlockBits(bmpData);
-            if (flip)
-            {
-                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            }
-            return bitmap;
-        }
-
-        public byte[] DecodeTexture2D()
-        {
-            byte[] bytes = null;
+            var flag = false;
+            var buff = BigArrayPool<byte>.Shared.Rent(reader.Size);
+            reader.GetData(buff);
             switch (m_TextureFormat)
             {
                 case TextureFormat.Alpha8: //test pass
-                    bytes = DecodeAlpha8();
+                    flag = DecodeAlpha8(buff, bytes);
                     break;
                 case TextureFormat.ARGB4444: //test pass
-                    SwapBytesForXbox();
-                    bytes = DecodeARGB4444();
+                    SwapBytesForXbox(buff);
+                    flag = DecodeARGB4444(buff, bytes);
                     break;
                 case TextureFormat.RGB24: //test pass
-                    bytes = DecodeRGB24();
+                    flag = DecodeRGB24(buff, bytes);
                     break;
                 case TextureFormat.RGBA32: //test pass
-                    bytes = DecodeRGBA32();
+                    flag = DecodeRGBA32(buff, bytes);
                     break;
                 case TextureFormat.ARGB32: //test pass
-                    bytes = DecodeARGB32();
+                    flag = DecodeARGB32(buff, bytes);
                     break;
                 case TextureFormat.RGB565: //test pass
-                    SwapBytesForXbox();
-                    bytes = DecodeRGB565();
+                    SwapBytesForXbox(buff);
+                    flag = DecodeRGB565(buff, bytes);
                     break;
                 case TextureFormat.R16: //test pass
-                    bytes = DecodeR16();
+                    flag = DecodeR16(buff, bytes);
                     break;
                 case TextureFormat.DXT1: //test pass
-                    SwapBytesForXbox();
-                    bytes = DecodeDXT1();
+                    SwapBytesForXbox(buff);
+                    flag = DecodeDXT1(buff, bytes);
+                    break;
+                case TextureFormat.DXT3:
                     break;
                 case TextureFormat.DXT5: //test pass
-                    SwapBytesForXbox();
-                    bytes = DecodeDXT5();
+                    SwapBytesForXbox(buff);
+                    flag = DecodeDXT5(buff, bytes);
                     break;
                 case TextureFormat.RGBA4444: //test pass
-                    bytes = DecodeRGBA4444();
+                    flag = DecodeRGBA4444(buff, bytes);
                     break;
                 case TextureFormat.BGRA32: //test pass
-                    bytes = DecodeBGRA32();
+                    flag = DecodeBGRA32(buff, bytes);
                     break;
                 case TextureFormat.RHalf:
-                    bytes = DecodeRHalf();
+                    flag = DecodeRHalf(buff, bytes);
                     break;
                 case TextureFormat.RGHalf:
-                    bytes = DecodeRGHalf();
+                    flag = DecodeRGHalf(buff, bytes);
                     break;
                 case TextureFormat.RGBAHalf: //test pass
-                    bytes = DecodeRGBAHalf();
+                    flag = DecodeRGBAHalf(buff, bytes);
                     break;
                 case TextureFormat.RFloat:
-                    bytes = DecodeRFloat();
+                    flag = DecodeRFloat(buff, bytes);
                     break;
                 case TextureFormat.RGFloat:
-                    bytes = DecodeRGFloat();
+                    flag = DecodeRGFloat(buff, bytes);
                     break;
                 case TextureFormat.RGBAFloat:
-                    bytes = DecodeRGBAFloat();
+                    flag = DecodeRGBAFloat(buff, bytes);
                     break;
                 case TextureFormat.YUY2: //test pass
-                    bytes = DecodeYUY2();
+                    flag = DecodeYUY2(buff, bytes);
                     break;
                 case TextureFormat.RGB9e5Float: //test pass
-                    bytes = DecodeRGB9e5Float();
-                    break;
-                case TextureFormat.BC4: //test pass
-                    bytes = DecodeBC4();
-                    break;
-                case TextureFormat.BC5: //test pass
-                    bytes = DecodeBC5();
+                    flag = DecodeRGB9e5Float(buff, bytes);
                     break;
                 case TextureFormat.BC6H: //test pass
-                    bytes = DecodeBC6H();
+                    flag = DecodeBC6H(buff, bytes);
                     break;
                 case TextureFormat.BC7: //test pass
-                    bytes = DecodeBC7();
+                    flag = DecodeBC7(buff, bytes);
+                    break;
+                case TextureFormat.BC4: //test pass
+                    flag = DecodeBC4(buff, bytes);
+                    break;
+                case TextureFormat.BC5: //test pass
+                    flag = DecodeBC5(buff, bytes);
                     break;
                 case TextureFormat.DXT1Crunched: //test pass
-                    if (UnpackCrunch())
-                    {
-                        bytes = DecodeDXT1();
-                    }
+                    flag = DecodeDXT1Crunched(buff, bytes);
                     break;
                 case TextureFormat.DXT5Crunched: //test pass
-                    if (UnpackCrunch())
-                    {
-                        bytes = DecodeDXT5();
-                    }
+                    flag = DecodeDXT5Crunched(buff, bytes);
                     break;
                 case TextureFormat.PVRTC_RGB2: //test pass
                 case TextureFormat.PVRTC_RGBA2: //test pass
-                    bytes = DecodePVRTC(true);
+                    flag = DecodePVRTC(buff, bytes, true);
                     break;
                 case TextureFormat.PVRTC_RGB4: //test pass
                 case TextureFormat.PVRTC_RGBA4: //test pass
-                    bytes = DecodePVRTC(false);
+                    flag = DecodePVRTC(buff, bytes, false);
                     break;
                 case TextureFormat.ETC_RGB4: //test pass
                 case TextureFormat.ETC_RGB4_3DS:
-                    bytes = DecodeETC1();
+                    flag = DecodeETC1(buff, bytes);
                     break;
                 case TextureFormat.ATC_RGB4: //test pass
-                    bytes = DecodeATCRGB4();
+                    flag = DecodeATCRGB4(buff, bytes);
                     break;
                 case TextureFormat.ATC_RGBA8: //test pass
-                    bytes = DecodeATCRGBA8();
+                    flag = DecodeATCRGBA8(buff, bytes);
                     break;
                 case TextureFormat.EAC_R: //test pass
-                    bytes = DecodeEACR();
+                    flag = DecodeEACR(buff, bytes);
                     break;
                 case TextureFormat.EAC_R_SIGNED:
-                    bytes = DecodeEACRSigned();
+                    flag = DecodeEACRSigned(buff, bytes);
                     break;
                 case TextureFormat.EAC_RG: //test pass
-                    bytes = DecodeEACRG();
+                    flag = DecodeEACRG(buff, bytes);
                     break;
                 case TextureFormat.EAC_RG_SIGNED:
-                    bytes = DecodeEACRGSigned();
+                    flag = DecodeEACRGSigned(buff, bytes);
                     break;
                 case TextureFormat.ETC2_RGB: //test pass
-                    bytes = DecodeETC2();
+                    flag = DecodeETC2(buff, bytes);
                     break;
                 case TextureFormat.ETC2_RGBA1: //test pass
-                    bytes = DecodeETC2A1();
+                    flag = DecodeETC2A1(buff, bytes);
                     break;
                 case TextureFormat.ETC2_RGBA8: //test pass
                 case TextureFormat.ETC_RGBA8_3DS:
-                    bytes = DecodeETC2A8();
+                    flag = DecodeETC2A8(buff, bytes);
                     break;
                 case TextureFormat.ASTC_RGB_4x4: //test pass
                 case TextureFormat.ASTC_RGBA_4x4: //test pass
                 case TextureFormat.ASTC_HDR_4x4: //test pass
-                    bytes = DecodeASTC(4);
+                    flag = DecodeASTC(buff, bytes, 4);
                     break;
                 case TextureFormat.ASTC_RGB_5x5: //test pass
                 case TextureFormat.ASTC_RGBA_5x5: //test pass
                 case TextureFormat.ASTC_HDR_5x5: //test pass
-                    bytes = DecodeASTC(5);
+                    flag = DecodeASTC(buff, bytes, 5);
                     break;
                 case TextureFormat.ASTC_RGB_6x6: //test pass
                 case TextureFormat.ASTC_RGBA_6x6: //test pass
                 case TextureFormat.ASTC_HDR_6x6: //test pass
-                    bytes = DecodeASTC(6);
+                    flag = DecodeASTC(buff, bytes, 6);
                     break;
                 case TextureFormat.ASTC_RGB_8x8: //test pass
                 case TextureFormat.ASTC_RGBA_8x8: //test pass
                 case TextureFormat.ASTC_HDR_8x8: //test pass
-                    bytes = DecodeASTC(8);
+                    flag = DecodeASTC(buff, bytes, 8);
                     break;
                 case TextureFormat.ASTC_RGB_10x10: //test pass
                 case TextureFormat.ASTC_RGBA_10x10: //test pass
                 case TextureFormat.ASTC_HDR_10x10: //test pass
-                    bytes = DecodeASTC(10);
+                    flag = DecodeASTC(buff, bytes, 10);
                     break;
                 case TextureFormat.ASTC_RGB_12x12: //test pass
                 case TextureFormat.ASTC_RGBA_12x12: //test pass
                 case TextureFormat.ASTC_HDR_12x12: //test pass
-                    bytes = DecodeASTC(12);
+                    flag = DecodeASTC(buff, bytes, 12);
                     break;
                 case TextureFormat.RG16: //test pass
-                    bytes = DecodeRG16();
+                    flag = DecodeRG16(buff, bytes);
                     break;
                 case TextureFormat.R8: //test pass
-                    bytes = DecodeR8();
+                    flag = DecodeR8(buff, bytes);
                     break;
                 case TextureFormat.ETC_RGB4Crunched: //test pass
-                    if (UnpackCrunch())
-                    {
-                        bytes = DecodeETC1();
-                    }
+                    flag = DecodeETC1Crunched(buff, bytes);
                     break;
                 case TextureFormat.ETC2_RGBA8Crunched: //test pass
-                    if (UnpackCrunch())
-                    {
-                        bytes = DecodeETC2A8();
-                    }
+                    flag = DecodeETC2A8Crunched(buff, bytes);
+                    break;
+                case TextureFormat.RG32: //test pass
+                    flag = DecodeRG32(buff, bytes);
+                    break;
+                case TextureFormat.RGB48: //test pass
+                    flag = DecodeRGB48(buff, bytes);
+                    break;
+                case TextureFormat.RGBA64: //test pass
+                    flag = DecodeRGBA64(buff, bytes);
                     break;
             }
-            return bytes;
+            BigArrayPool<byte>.Shared.Return(buff);
+            return flag;
         }
 
-        private void SwapBytesForXbox()
+        private void SwapBytesForXbox(byte[] image_data)
         {
             if (platform == BuildTarget.XBOX360)
             {
-                for (var i = 0; i < image_data_size / 2; i++)
+                for (var i = 0; i < reader.Size / 2; i++)
                 {
                     var b = image_data[i * 2];
                     image_data[i * 2] = image_data[i * 2 + 1];
@@ -243,22 +226,24 @@ namespace AssetStudio
             }
         }
 
-        private byte[] DecodeAlpha8()
+        private bool DecodeAlpha8(byte[] image_data, byte[] buff)
         {
-            var buff = Enumerable.Repeat<byte>(0xFF, m_Width * m_Height * 4).ToArray();
-            for (var i = 0; i < m_Width * m_Height; i++)
+            var size = m_Width * m_Height;
+            var span = new Span<byte>(buff);
+            span.Fill(0xFF);
+            for (var i = 0; i < size; i++)
             {
                 buff[i * 4 + 3] = image_data[i];
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeARGB4444()
+        private bool DecodeARGB4444(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < m_Width * m_Height; i++)
+            var size = m_Width * m_Height;
+            var pixelNew = new byte[4];
+            for (var i = 0; i < size; i++)
             {
-                var pixelNew = new byte[4];
                 var pixelOldShort = BitConverter.ToUInt16(image_data, i * 2);
                 pixelNew[0] = (byte)(pixelOldShort & 0x000f);
                 pixelNew[1] = (byte)((pixelOldShort & 0x00f0) >> 4);
@@ -268,52 +253,50 @@ namespace AssetStudio
                     pixelNew[j] = (byte)((pixelNew[j] << 4) | pixelNew[j]);
                 pixelNew.CopyTo(buff, i * 4);
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGB24()
+        private bool DecodeRGB24(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < m_Width * m_Height; i++)
+            var size = m_Width * m_Height;
+            for (var i = 0; i < size; i++)
             {
                 buff[i * 4] = image_data[i * 3 + 2];
                 buff[i * 4 + 1] = image_data[i * 3 + 1];
                 buff[i * 4 + 2] = image_data[i * 3 + 0];
                 buff[i * 4 + 3] = 255;
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGBA32()
+        private bool DecodeRGBA32(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = image_data[i + 2];
                 buff[i + 1] = image_data[i + 1];
                 buff[i + 2] = image_data[i + 0];
                 buff[i + 3] = image_data[i + 3];
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeARGB32()
+        private bool DecodeARGB32(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = image_data[i + 3];
                 buff[i + 1] = image_data[i + 2];
                 buff[i + 2] = image_data[i + 1];
                 buff[i + 3] = image_data[i + 0];
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGB565()
+        private bool DecodeRGB565(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < m_Width * m_Height; i++)
+            var size = m_Width * m_Height;
+            for (var i = 0; i < size; i++)
             {
                 var p = BitConverter.ToUInt16(image_data, i * 2);
                 buff[i * 4] = (byte)((p << 3) | (p >> 2 & 7));
@@ -321,46 +304,38 @@ namespace AssetStudio
                 buff[i * 4 + 2] = (byte)((p >> 8 & 0xf8) | (p >> 13));
                 buff[i * 4 + 3] = 255;
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeR16()
+        private bool DecodeR16(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < m_Width * m_Height; i++)
+            var size = m_Width * m_Height;
+            for (var i = 0; i < size; i++)
             {
-                buff[i * 4 + 2] = image_data[i * 2 + 1]; //r
+                buff[i * 4] = 0; //b
+                buff[i * 4 + 1] = 0; //g
+                buff[i * 4 + 2] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 2)); //r
                 buff[i * 4 + 3] = 255; //a
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeDXT1()
+        private bool DecodeDXT1(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeDXT1(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
+            return TextureDecoder.DecodeDXT1(image_data, m_Width, m_Height, buff);
         }
 
-        private byte[] DecodeDXT5()
+        private bool DecodeDXT5(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeDXT5(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
+            return TextureDecoder.DecodeDXT5(image_data, m_Width, m_Height, buff);
         }
 
-        private byte[] DecodeRGBA4444()
+        private bool DecodeRGBA4444(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < m_Width * m_Height; i++)
+            var size = m_Width * m_Height;
+            var pixelNew = new byte[4];
+            for (var i = 0; i < size; i++)
             {
-                var pixelNew = new byte[4];
                 var pixelOldShort = BitConverter.ToUInt16(image_data, i * 2);
                 pixelNew[0] = (byte)((pixelOldShort & 0x00f0) >> 4);
                 pixelNew[1] = (byte)((pixelOldShort & 0x0f00) >> 8);
@@ -370,108 +345,101 @@ namespace AssetStudio
                     pixelNew[j] = (byte)((pixelNew[j] << 4) | pixelNew[j]);
                 pixelNew.CopyTo(buff, i * 4);
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeBGRA32()
+        private bool DecodeBGRA32(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = image_data[i];
                 buff[i + 1] = image_data[i + 1];
                 buff[i + 2] = image_data[i + 2];
                 buff[i + 3] = image_data[i + 3];
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRHalf()
+        private bool DecodeRHalf(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = 0;
                 buff[i + 1] = 0;
                 buff[i + 2] = (byte)Math.Round(Half.ToHalf(image_data, i / 2) * 255f);
                 buff[i + 3] = 255;
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGHalf()
+        private bool DecodeRGHalf(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = 0;
                 buff[i + 1] = (byte)Math.Round(Half.ToHalf(image_data, i + 2) * 255f);
                 buff[i + 2] = (byte)Math.Round(Half.ToHalf(image_data, i) * 255f);
                 buff[i + 3] = 255;
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGBAHalf()
+        private bool DecodeRGBAHalf(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = (byte)Math.Round(Half.ToHalf(image_data, i * 2 + 4) * 255f);
                 buff[i + 1] = (byte)Math.Round(Half.ToHalf(image_data, i * 2 + 2) * 255f);
                 buff[i + 2] = (byte)Math.Round(Half.ToHalf(image_data, i * 2) * 255f);
                 buff[i + 3] = (byte)Math.Round(Half.ToHalf(image_data, i * 2 + 6) * 255f);
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRFloat()
+        private bool DecodeRFloat(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = 0;
                 buff[i + 1] = 0;
                 buff[i + 2] = (byte)Math.Round(BitConverter.ToSingle(image_data, i) * 255f);
                 buff[i + 3] = 255;
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGFloat()
+        private bool DecodeRGFloat(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = 0;
                 buff[i + 1] = (byte)Math.Round(BitConverter.ToSingle(image_data, i * 2 + 4) * 255f);
                 buff[i + 2] = (byte)Math.Round(BitConverter.ToSingle(image_data, i * 2) * 255f);
                 buff[i + 3] = 255;
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGBAFloat()
+        private bool DecodeRGBAFloat(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 buff[i] = (byte)Math.Round(BitConverter.ToSingle(image_data, i * 4 + 8) * 255f);
                 buff[i + 1] = (byte)Math.Round(BitConverter.ToSingle(image_data, i * 4 + 4) * 255f);
                 buff[i + 2] = (byte)Math.Round(BitConverter.ToSingle(image_data, i * 4) * 255f);
                 buff[i + 3] = (byte)Math.Round(BitConverter.ToSingle(image_data, i * 4 + 12) * 255f);
             }
-            return buff;
+            return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static byte ClampByte(int x)
         {
             return (byte)(byte.MaxValue < x ? byte.MaxValue : (x > byte.MinValue ? x : byte.MinValue));
         }
 
-        private byte[] DecodeYUY2()
+        private bool DecodeYUY2(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
             int p = 0;
             int o = 0;
             int halfWidth = m_Width / 2;
@@ -497,13 +465,12 @@ namespace AssetStudio
                     buff[o++] = 255;
                 }
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeRGB9e5Float()
+        private bool DecodeRGB9e5Float(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < buff.Length; i += 4)
+            for (var i = 0; i < outPutSize; i += 4)
             {
                 var n = BitConverter.ToInt32(image_data, i);
                 var scale = n >> 27 & 0x1f;
@@ -516,195 +483,208 @@ namespace AssetStudio
                 buff[i + 2] = (byte)Math.Round(r * scalef * 255f);
                 buff[i + 3] = 255;
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeBC4()
+        private bool DecodeBC4(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeBC4(image_data, m_Width, m_Height, buff))
+            return TextureDecoder.DecodeBC4(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeBC5(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeBC5(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeBC6H(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeBC6(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeBC7(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeBC7(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeDXT1Crunched(byte[] image_data, byte[] buff)
+        {
+            if (UnpackCrunch(image_data, out var result))
             {
-                return null;
+                if (DecodeDXT1(result, buff))
+                {
+                    return true;
+                }
             }
-            return buff;
+            return false;
         }
 
-        private byte[] DecodeBC5()
+        private bool DecodeDXT5Crunched(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeBC5(image_data, m_Width, m_Height, buff))
+            if (UnpackCrunch(image_data, out var result))
             {
-                return null;
+                if (DecodeDXT5(result, buff))
+                {
+                    return true;
+                }
             }
-            return buff;
+            return false;
         }
 
-        private byte[] DecodeBC6H()
+        private bool DecodePVRTC(byte[] image_data, byte[] buff, bool is2bpp)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeBC6(image_data, m_Width, m_Height, buff))
+            return TextureDecoder.DecodePVRTC(image_data, m_Width, m_Height, buff, is2bpp);
+        }
+
+        private bool DecodeETC1(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeETC1(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeATCRGB4(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeATCRGB4(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeATCRGBA8(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeATCRGBA8(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeEACR(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeEACR(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeEACRSigned(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeEACRSigned(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeEACRG(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeEACRG(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeEACRGSigned(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeEACRGSigned(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeETC2(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeETC2(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeETC2A1(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeETC2A1(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeETC2A8(byte[] image_data, byte[] buff)
+        {
+            return TextureDecoder.DecodeETC2A8(image_data, m_Width, m_Height, buff);
+        }
+
+        private bool DecodeASTC(byte[] image_data, byte[] buff, int blocksize)
+        {
+            return TextureDecoder.DecodeASTC(image_data, m_Width, m_Height, blocksize, blocksize, buff);
+        }
+
+        private bool DecodeRG16(byte[] image_data, byte[] buff)
+        {
+            var size = m_Width * m_Height;
+            for (var i = 0; i < size; i++)
             {
-                return null;
+                buff[i * 4] = 0; //B
+                buff[i * 4 + 1] = image_data[i * 2 + 1];//G
+                buff[i * 4 + 2] = image_data[i * 2];//R
+                buff[i * 4 + 3] = 255;//A
             }
-            return buff;
+            return true;
         }
 
-        private byte[] DecodeBC7()
+        private bool DecodeR8(byte[] image_data, byte[] buff)
         {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeBC7(image_data, m_Width, m_Height, buff))
+            var size = m_Width * m_Height;
+            for (var i = 0; i < size; i++)
             {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodePVRTC(bool is2bpp)
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodePVRTC(image_data, m_Width, m_Height, buff, is2bpp))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeETC1()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeETC1(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeATCRGB4()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeATCRGB4(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeATCRGBA8()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeATCRGBA8(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeEACR()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeEACR(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeEACRSigned()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeEACRSigned(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeEACRG()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeEACRG(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeEACRGSigned()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeEACRGSigned(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeETC2()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeETC2(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeETC2A1()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeETC2A1(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeETC2A8()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeETC2A8(image_data, m_Width, m_Height, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeASTC(int blocksize)
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            if (!TextureDecoder.DecodeASTC(image_data, m_Width, m_Height, blocksize, blocksize, buff))
-            {
-                return null;
-            }
-            return buff;
-        }
-
-        private byte[] DecodeRG16()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < m_Width * m_Height; i += 2)
-            {
-                buff[i * 2 + 1] = image_data[i + 1];//G
-                buff[i * 2 + 2] = image_data[i];//R
-                buff[i * 2 + 3] = 255;//A
-            }
-            return buff;
-        }
-
-        private byte[] DecodeR8()
-        {
-            var buff = new byte[m_Width * m_Height * 4];
-            for (var i = 0; i < m_Width * m_Height; i++)
-            {
+                buff[i * 4] = 0; //B
+                buff[i * 4 + 1] = 0; //G
                 buff[i * 4 + 2] = image_data[i];//R
                 buff[i * 4 + 3] = 255;//A
             }
-            return buff;
+            return true;
         }
 
-        private bool UnpackCrunch()
+        private bool DecodeETC1Crunched(byte[] image_data, byte[] buff)
         {
-            byte[] result;
+            if (UnpackCrunch(image_data, out var result))
+            {
+                if (DecodeETC1(result, buff))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool DecodeETC2A8Crunched(byte[] image_data, byte[] buff)
+        {
+            if (UnpackCrunch(image_data, out var result))
+            {
+                if (DecodeETC2A8(result, buff))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte DownScaleFrom16BitTo8Bit(ushort component)
+        {
+            return (byte)(((component * 255) + 32895) >> 16);
+        }
+
+        private bool DecodeRG32(byte[] image_data, byte[] buff)
+        {
+            for (var i = 0; i < outPutSize; i += 4)
+            {
+                buff[i] = 0;                                                                          //b
+                buff[i + 1] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i + 2));     //g
+                buff[i + 2] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i));         //r
+                buff[i + 3] = byte.MaxValue;                                                          //a
+            }
+            return true;
+        }
+
+        private bool DecodeRGB48(byte[] image_data, byte[] buff)
+        {
+            var size = m_Width * m_Height;
+            for (var i = 0; i < size; i++)
+            {
+                buff[i * 4] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 6 + 4));     //b
+                buff[i * 4 + 1] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 6 + 2)); //g
+                buff[i * 4 + 2] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 6));     //r
+                buff[i * 4 + 3] = byte.MaxValue;                                                          //a
+            }
+            return true;
+        }
+
+        private bool DecodeRGBA64(byte[] image_data, byte[] buff)
+        {
+            for (var i = 0; i < outPutSize; i += 4)
+            {
+                buff[i] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 2 + 4));     //b
+                buff[i + 1] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 2 + 2)); //g
+                buff[i + 2] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 2));     //r
+                buff[i + 3] = DownScaleFrom16BitTo8Bit(BitConverter.ToUInt16(image_data, i * 2 + 6)); //a
+            }
+            return true;
+        }
+
+        private bool UnpackCrunch(byte[] image_data, out byte[] result)
+        {
             if (version[0] > 2017 || (version[0] == 2017 && version[1] >= 3) //2017.3 and up
                 || m_TextureFormat == TextureFormat.ETC_RGB4Crunched
                 || m_TextureFormat == TextureFormat.ETC2_RGBA8Crunched)
@@ -717,8 +697,6 @@ namespace AssetStudio
             }
             if (result != null)
             {
-                image_data = result;
-                image_data_size = result.Length;
                 return true;
             }
             return false;

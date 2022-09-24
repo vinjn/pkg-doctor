@@ -637,6 +637,50 @@ namespace AssetStudio
                 m_Binding = new ValueArrayConstant(reader);
             }
         }
+
+        public AnimationClipBindingConstant ConvertValueArrayToGenericBinding()
+        {
+            var bindings = new AnimationClipBindingConstant();
+            var genericBindings = new List<GenericBinding>();
+            var values = m_Binding;
+            for (int i = 0; i < values.m_ValueArray.Length;)
+            {
+                var curveID = values.m_ValueArray[i].m_ID;
+                var curveTypeID = values.m_ValueArray[i].m_TypeID;
+                var binding = new GenericBinding();
+                genericBindings.Add(binding);
+                if (curveTypeID == 4174552735) //CRC(PositionX))
+                {
+                    binding.path = curveID;
+                    binding.attribute = 1; //kBindTransformPosition
+                    binding.typeID = ClassIDType.Transform;
+                    i += 3;
+                }
+                else if (curveTypeID == 2211994246) //CRC(QuaternionX))
+                {
+                    binding.path = curveID;
+                    binding.attribute = 2; //kBindTransformRotation
+                    binding.typeID = ClassIDType.Transform;
+                    i += 4;
+                }
+                else if (curveTypeID == 1512518241) //CRC(ScaleX))
+                {
+                    binding.path = curveID;
+                    binding.attribute = 3; //kBindTransformScale
+                    binding.typeID = ClassIDType.Transform;
+                    i += 3;
+                }
+                else
+                {
+                    binding.typeID = ClassIDType.Animator;
+                    binding.path = 0;
+                    binding.attribute = curveID;
+                    i++;
+                }
+            }
+            bindings.genericBindings = genericBindings.ToArray();
+            return bindings;
+        }
     }
 
     public class ValueDelta
@@ -753,6 +797,9 @@ namespace AssetStudio
         public ClassIDType typeID;
         public byte customType;
         public byte isPPtrCurve;
+        public byte isIntCurve;
+
+        public GenericBinding() { }
 
         public GenericBinding(ObjectReader reader)
         {
@@ -770,6 +817,10 @@ namespace AssetStudio
             }
             customType = reader.ReadByte();
             isPPtrCurve = reader.ReadByte();
+            if (version[0] > 2022 || (version[0] == 2022 && version[1] >= 1)) //2022.1 and up
+            {
+                isIntCurve = reader.ReadByte();
+            }
             reader.AlignStream();
         }
     }
@@ -778,6 +829,8 @@ namespace AssetStudio
     {
         public GenericBinding[] genericBindings;
         public PPtr<Object>[] pptrCurveMapping;
+
+        public AnimationClipBindingConstant() { }
 
         public AnimationClipBindingConstant(ObjectReader reader)
         {
@@ -861,9 +914,9 @@ namespace AssetStudio
 
     public enum AnimationType
     {
-        kLegacy = 1,
-        kGeneric = 2,
-        kHumanoid = 3
+        Legacy = 1,
+        Generic = 2,
+        Humanoid = 3
     };
 
     public sealed class AnimationClip : NamedObject
@@ -897,7 +950,7 @@ namespace AssetStudio
             else if (version[0] >= 4)//4.0 and up
             {
                 m_AnimationType = (AnimationType)reader.ReadInt32();
-                if (m_AnimationType == AnimationType.kLegacy)
+                if (m_AnimationType == AnimationType.Legacy)
                     m_Legacy = true;
             }
             else

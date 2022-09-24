@@ -12,7 +12,7 @@ namespace AssetStudioGUI.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -109,10 +109,10 @@ namespace AssetStudioGUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("PNG")]
-        public string convertType {
+        [global::System.Configuration.DefaultSettingValueAttribute("Png")]
+        public global::AssetStudio.ImageFormat convertType {
             get {
-                return ((string)(this["convertType"]));
+                return ((global::AssetStudio.ImageFormat)(this["convertType"]));
             }
             set {
                 this["convertType"] = value;
@@ -260,6 +260,18 @@ namespace AssetStudioGUI.Properties {
             }
             set {
                 this["restoreExtensionName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool exportAllUvsAsDiffuseMaps {
+            get {
+                return ((bool)(this["exportAllUvsAsDiffuseMaps"]));
+            }
+            set {
+                this["exportAllUvsAsDiffuseMaps"] = value;
             }
         }
     }
