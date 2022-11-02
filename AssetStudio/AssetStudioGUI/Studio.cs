@@ -761,7 +761,7 @@ namespace AssetStudioGUI
 
             if (Properties.Settings.Default.openAfterExport && exportedCount > 0)
             {
-                Process.Start(savePath);
+                OpenFolderInExplorer(savePath);
             }
 
             if (csvFile.BaseStream != null)
