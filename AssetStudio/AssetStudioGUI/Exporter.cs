@@ -10,13 +10,13 @@ namespace AssetStudioGUI
 {
     internal static class Exporter
     {
-        public static bool ExportTexture2D(AssetItem item, string exportPath)
+        public static bool ExportTexture2D(AssetItem item, string exportPath, out string exportFullPath)
         {
             var m_Texture2D = (Texture2D)item.Asset;
             if (Properties.Settings.Default.convertTexture)
             {
                 var type = Properties.Settings.Default.convertType;
-                if (!TryExportFile(exportPath, item, "." + type.ToString().ToLower(), out var exportFullPath))
+                if (!TryExportFile(exportPath, item, "." + type.ToString().ToLower(), out exportFullPath))
                     return false;
                 var image = m_Texture2D.ConvertToImage(true);
                 if (image == null)
@@ -32,7 +32,7 @@ namespace AssetStudioGUI
             }
             else
             {
-                if (!TryExportFile(exportPath, item, ".tex", out var exportFullPath))
+                if (!TryExportFile(exportPath, item, ".tex", out exportFullPath))
                     return false;
                 File.WriteAllBytes(exportFullPath, m_Texture2D.image_data.GetData());
                 return true;
@@ -350,7 +350,7 @@ namespace AssetStudioGUI
             switch (item.Type)
             {
                 case ClassIDType.Texture2D:
-                    return ExportTexture2D(item, exportPath);
+                    return ExportTexture2D(item, exportPath, out _);
                 case ClassIDType.AudioClip:
                     return ExportAudioClip(item, exportPath);
                 case ClassIDType.Shader:
