@@ -761,7 +761,7 @@ namespace AssetStudioGUI
 
             if (Properties.Settings.Default.openAfterExport && exportedCount > 0)
             {
-                Process.Start(savePath);
+                OpenFolderInExplorer(savePath);
             }
 
             if (csvFile.BaseStream != null)
@@ -793,8 +793,9 @@ namespace AssetStudioGUI
                             dimension = string.Format("{0}x{1}", texture2D.m_Width, texture2D.m_Height);
                         if (texture2D.m_Width >= 512 || texture2D.m_Height >= 512)
                         {
-                            result = ExportTexture2D(item, exportPath);
+                            result = ExportTexture2D(item, exportPath, out var exportFullPath);
                             filename = filename.Replace(exportPath, "Texture2D/");
+                            rawData = File.ReadAllBytes(exportFullPath);
                         }
                         else
                         {
